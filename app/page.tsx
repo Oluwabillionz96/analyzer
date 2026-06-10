@@ -1,35 +1,37 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { AnalyzeResponse } from "@/libs/types";
+import { analyzeUrl } from "@/libs/utils";
+import { SubmitEvent, useState } from "react";
+import { AnalysisCard } from "@/components/analysis-card";
 
 export default function Home() {
   const [loading, setLoading] = useState(false);
   const [url, setUrl] = useState("");
+  const [analysis, setAnalysis] = useState<AnalyzeResponse | null>(null);
 
-  useEffect(() => {
-    if (loading) {
-      const timer = setTimeout(() => {
-        setLoading(false);
+  function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setLoading(true);
+    analyzeUrl(url)
+      .then((response) => setAnalysis(response?.data ?? null))
+      .finally(() => {
         setUrl("");
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [loading]);
+        setLoading(false);
+      });
+  }
 
   return (
-    <section className="h-screen grid place-items-center px-6">
+    <section className="min-h-screen grid place-items-center py-4 px-6">
       <div className="w-full space-y-6">
         <form
-          className="flex w-full justify-center gap-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            setLoading(true);
-          }}
+          className="flex flex-col md:flex-row w-full justify-center gap-4"
+          onSubmit={handleSubmit}
         >
           <input
             type="url"
             placeholder="Enter Url"
-            className="border px-6 py-2 rounded-lg w-3/10 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="border px-6 py-2 rounded-lg w-fill md:w-3/10 disabled:opacity-50 disabled:cursor-not-allowed"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             required
@@ -38,12 +40,22 @@ export default function Home() {
           <button
             type="submit"
             disabled={loading}
-            className="border px-4 rounded-lg cursor-pointer bg-gray-500 text-white hover:bg-transparent disabled:hover:cursor-not-allowed disabled:opacity-50 hover:text-black transition-all duration-500"
+            className="border px-4 rounded-lg cursor-pointer py-2 md:py-0 bg-gray-500 text-white hover:bg-transparent disabled:hover:cursor-not-allowed disabled:opacity-50 hover:text-black transition-all duration-500"
           >
             {loading ? "Analyzing..." : "Analyze"}
           </button>
         </form>
-        <div className=" w-4/10 mx-auto max-h-60 p-4"></div>
+        <div className="mx-auto max-w-xl space-y-4">
+          <AnalysisCard data={analysis} />
+          {analysis && (
+            <button
+              onClick={() => setAnalysis(null)}
+              className="border w-full px-4 rounded-lg cursor-pointer py-2 bg-gray-500 text-white hover:bg-transparent hover:text-black transition-all duration-500"
+            >
+              Clear
+            </button>
+          )}
+        </div>
       </div>
     </section>
   );
