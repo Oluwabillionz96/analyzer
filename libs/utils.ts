@@ -20,3 +20,12 @@ export async function analyzeUrl(
     throw error;
   }
 }
+
+export function isFullUrl(url: string) {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+}
