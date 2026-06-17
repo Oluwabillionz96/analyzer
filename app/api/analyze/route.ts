@@ -1,7 +1,5 @@
-import { isFullUrl } from "@/libs/utils";
 import { getPageContent, getSiteAnalysis } from "@/libs/utils-server";
 import { NextRequest, NextResponse } from "next/server";
-import { chromium } from "playwright";
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,6 +13,7 @@ export async function POST(req: NextRequest) {
     if (!pageContent) {
       throw new Error("Website could not be analyzed");
     }
+    console.log({ pageContent });
     const analysis = await getSiteAnalysis(
       process.env.GROQ_REQUEST_URL,
       pageContent,
@@ -28,7 +27,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error({ error });
     return NextResponse.json({
-      error: "Internal server error",
+      error: error instanceof Error ? error.message : String(error),
       success: false,
     });
   }
