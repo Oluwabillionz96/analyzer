@@ -1,10 +1,10 @@
 "use client";
 
-import { AnalyzeResponse } from "@/libs/types";
+import { AnalysisResponse } from "@/libs/types";
 import { ReactNode } from "react";
 
 interface AnalysisCardProps {
-  data: AnalyzeResponse | null;
+  data: AnalysisResponse | null;
 }
 
 export function AnalysisCard({ data }: AnalysisCardProps) {

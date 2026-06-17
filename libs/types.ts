@@ -4,7 +4,7 @@ export interface ApiResponse<T> {
   error?: string;
 }
 
-export interface AnalyzeResponse {
+export interface AnalysisResponse {
   companyName: string;
   summary: string;
   targetCustomers: string[];

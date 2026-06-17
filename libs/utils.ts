@@ -1,8 +1,8 @@
-import { AnalyzeResponse, ApiResponse } from "./types";
+import { AnalysisResponse, ApiResponse } from "./types";
 
 export async function analyzeUrl(
   url: string,
-): Promise<ApiResponse<AnalyzeResponse>> {
+): Promise<ApiResponse<AnalysisResponse>> {
   try {
     const response = await fetch("api/analyze", {
       method: "POST",
@@ -15,17 +15,14 @@ export async function analyzeUrl(
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
-    return data as ApiResponse<AnalyzeResponse>;
+    if (!data.success) {
+      throw new Error(data.error);
+    }
+    return data as ApiResponse<AnalysisResponse>;
   } catch (error) {
+    console.log(error);
     throw error;
   }
 }
 
-export function isFullUrl(url: string) {
-  try {
-    new URL(url);
-    return true;
-  } catch {
-    return false;
-  }
-}
+
