@@ -1,0 +1,2 @@
+[[plugins]]
+  name = "netlify-plugin-playwright-cache"
