@@ -1,5 +1,5 @@
-import { chromium } from "playwright";
 import { AnalysisResponse } from "./types";
+import { load } from "cheerio";
 
 export function isFullUrl(url: string) {
   try {
@@ -10,25 +10,43 @@ export function isFullUrl(url: string) {
   }
 }
 
-export async function getPageContent(url: string): Promise<string> {
+export async function getPageContent(
+  url: string,
+  token?: string,
+  browserlessUrl?: string,
+): Promise<string> {
+  if (!token || !browserlessUrl) {
+    throw new Error("Missing token or browserless URL");
+  }
+
+  const browserlessContentUrl = `${browserlessUrl}/unblock?token=${token}&proxy=residential`;
+  const data = {
+    url,
+    content: true,
+    cookies: false,
+    screenshot: false,
+    browserWSEndpoint: false,
+    waitForTimeout: 5000,
+  };
+
   try {
-    const browser = await chromium.launch({ headless: true });
-    const page = await browser.newPage();
-    await page.goto(url, { waitUntil: "domcontentloaded" });
-
-    const body = page.locator("body");
-    await body.waitFor({ timeout: 3000 });
-
-    await page.evaluate(() => {
-      const trash = document.querySelectorAll(
-        "nav, footer, [class*='cookies'], [id*='cookies'], aside, [class*='sidebar'], [id*='sidebar'], [class*='nav'], [class*='footer']",
-      );
-      trash.forEach((el) => el.remove());
+    const response = await fetch(browserlessContentUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
     });
-
-    const content = await body.innerText();
-    await browser.close();
-    return content;
+    if (!response.ok) {
+      throw new Error(`Content fetch failed: ${response.status}`);
+    }
+    const result = await response.json();
+    const $ = load(result.content);
+    $(
+      "script, style, noscript, link, nav, footer, [class*='cookies'], [id*='cookies'], aside, [class*='sidebar'], [id*='sidebar'], [class*='nav'], [class*='footer']",
+    ).remove();
+    const text = $("body").text();
+    return text ?? "";
   } catch (error) {
     throw error;
   }

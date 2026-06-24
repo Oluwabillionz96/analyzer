@@ -9,11 +9,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "URL is required", success: false });
     }
 
-    const pageContent = await getPageContent(url);
+    const pageContent = await getPageContent(
+      url,
+      process.env.BROWSERLESS_API_KEY,
+      process.env.BROWSERLESS_URL,
+    );
+
     if (!pageContent) {
       throw new Error("Website could not be analyzed");
     }
-    console.log({ pageContent });
     const analysis = await getSiteAnalysis(
       process.env.GROQ_REQUEST_URL,
       pageContent,
