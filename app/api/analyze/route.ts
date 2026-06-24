@@ -1,12 +1,29 @@
 import { getPageContent, getSiteAnalysis } from "@/libs/utils-server";
 import { NextRequest, NextResponse } from "next/server";
 
+function isValidUrl(url: string): boolean {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { url } = await req.json();
 
     if (!url) {
       return NextResponse.json({ error: "URL is required", success: false });
+    }
+
+    if (!isValidUrl(url)) {
+      return NextResponse.json({ error: "Invalid URL", success: false });
+    }
+
+    if (!(url.startsWith("https://") || url.startsWith("http://"))) {
+      return NextResponse.json({ error: "Invalid URL", success: false });
     }
 
     const pageContent = await getPageContent(

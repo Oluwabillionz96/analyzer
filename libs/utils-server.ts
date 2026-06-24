@@ -19,7 +19,11 @@ export async function getPageContent(
     throw new Error("Missing token or browserless URL");
   }
 
-  const browserlessContentUrl = `${browserlessUrl}/unblock?token=${token}&proxy=residential`;
+  const browserlessContentUrl = new URL("/unblock", browserlessUrl);
+  browserlessContentUrl.searchParams.set("token", token);
+  browserlessContentUrl.searchParams.set("proxy", "residential");
+
+  // const browserlessContentUrl = `${browserlessUrl}/unblock?token=${token}&proxy=residential`;
   const data = {
     url,
     content: true,
@@ -38,7 +42,10 @@ export async function getPageContent(
       body: JSON.stringify(data),
     });
     if (!response.ok) {
-      console.log(response);
+      console.warn("Browserless content fetch failed", {
+        status: response.status,
+        statusText: response.statusText,
+      });
       throw new Error(`Content fetch failed: ${response.status}`);
     }
     const result = await response.json();
@@ -107,7 +114,11 @@ export async function getSiteAnalysis(
     });
 
     if (!response.ok) {
-      console.log({ siteContent });
+      console.warn("Site analysis request failed", {
+        status: response.status,
+        statusText: response.statusText,
+        siteContentLength: siteContent.length,
+      });
       throw new Error(`Failed to analyze website: ${response.statusText}`);
     }
 
