@@ -4,9 +4,9 @@ Analysator is a tool that acts as a landing page's analyst. It takes in a URL an
 
 ## Screenshots
 
-![Screenshot](/analysator1.webp)
-![Loading skeleton](/analysator-loading.webp)
-![Analysis result](/analysator-result.webp)
+![Screenshot](https://raw.githubusercontent.com/oluwabillionz96/analyzer/main/public/analysator1.webp)
+![Loading skeleton](https://raw.githubusercontent.com/oluwabillionz96/analyzer/main/public/analysator-loading.webp)
+![Analysis result](https://raw.githubusercontent.com/oluwabillionz96/analyzer/main/public/analysator-result.webp)
 
 ## Features
 
