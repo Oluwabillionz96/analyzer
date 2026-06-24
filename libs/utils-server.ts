@@ -1,4 +1,4 @@
-import { AnalysisResponse } from "./types";
+import { AnalysisResponse } from "../libs/types";
 import { load } from "cheerio";
 
 export function isFullUrl(url: string) {
@@ -38,6 +38,7 @@ export async function getPageContent(
       body: JSON.stringify(data),
     });
     if (!response.ok) {
+      console.log(response);
       throw new Error(`Content fetch failed: ${response.status}`);
     }
     const result = await response.json();
@@ -45,8 +46,13 @@ export async function getPageContent(
     $(
       "script, style, noscript, link, nav, footer, [class*='cookies'], [id*='cookies'], aside, [class*='sidebar'], [id*='sidebar'], [class*='nav'], [class*='footer']",
     ).remove();
-    const text = $("body").text();
-    return text ?? "";
+    const text = $("body").text().trim();
+
+    if (text.length < 30) {
+      throw new Error("Site analysis failed: content is too short");
+    }
+
+    return text.slice(0, 10000);
   } catch (error) {
     throw error;
   }
@@ -101,7 +107,8 @@ export async function getSiteAnalysis(
     });
 
     if (!response.ok) {
-      throw new Error("Analysis failed");
+      console.log({ siteContent });
+      throw new Error(`Failed to analyze website: ${response.statusText}`);
     }
 
     const aiData = await response.json();
