@@ -11,8 +11,9 @@ export async function analyzeUrl(
       },
       body: JSON.stringify({ url }),
     });
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    if (response.ok) {
+      const body = await response.json();
+      throw new Error(body.error ?? body.message ?? `HTTP ${response.status}`);
     }
     const data = await response.json();
     if (!data.success) {
@@ -24,5 +25,3 @@ export async function analyzeUrl(
     throw error;
   }
 }
-
-
