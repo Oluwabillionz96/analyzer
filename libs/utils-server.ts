@@ -1,5 +1,5 @@
-import { chromium } from "playwright";
-import { AnalysisResponse } from "./types";
+import { AnalysisResponse } from "../libs/types";
+import { load } from "cheerio";
 
 export function isFullUrl(url: string) {
   try {
@@ -10,25 +10,57 @@ export function isFullUrl(url: string) {
   }
 }
 
-export async function getPageContent(url: string): Promise<string> {
+export async function getPageContent(
+  url: string,
+  token?: string,
+  browserlessUrl?: string,
+): Promise<string> {
+  if (!token || !browserlessUrl) {
+    throw new Error("Missing token or browserless URL");
+  }
+
+  const browserlessContentUrl = new URL("/unblock", browserlessUrl);
+  browserlessContentUrl.searchParams.set("token", token);
+  // browserlessContentUrl.searchParams.set("proxy", "residential");
+
+  // const browserlessContentUrl = `${browserlessUrl}/unblock?token=${token}&proxy=residential`;
+  const data = {
+    url,
+    content: true,
+    cookies: false,
+    screenshot: false,
+    browserWSEndpoint: false,
+    waitForTimeout: 5000,
+  };
+
   try {
-    const browser = await chromium.launch({ headless: true });
-    const page = await browser.newPage();
-    await page.goto(url, { waitUntil: "domcontentloaded" });
-
-    const body = page.locator("body");
-    await body.waitFor({ timeout: 3000 });
-
-    await page.evaluate(() => {
-      const trash = document.querySelectorAll(
-        "nav, footer, [class*='cookies'], [id*='cookies'], aside, [class*='sidebar'], [id*='sidebar'], [class*='nav'], [class*='footer']",
-      );
-      trash.forEach((el) => el.remove());
+    const response = await fetch(browserlessContentUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      signal: AbortSignal.timeout(30000),
+      body: JSON.stringify(data),
     });
+    if (!response.ok) {
+      console.warn("Browserless content fetch failed", {
+        status: response.status,
+        statusText: response.statusText,
+      });
+      throw new Error(`Content fetch failed: ${response.status}`);
+    }
+    const result = await response.json();
+    const $ = load(result.content);
+    $(
+      "script, style, noscript, link, nav, footer, [class*='cookies'], [id*='cookies'], aside, [class*='sidebar'], [id*='sidebar'], [class*='nav'], [class*='footer']",
+    ).remove();
+    const text = $("body").text().trim();
 
-    const content = await body.innerText();
-    await browser.close();
-    return content;
+    if (text.length < 30) {
+      throw new Error("Site analysis failed: content is too short");
+    }
+
+    return text.slice(0, 10000);
   } catch (error) {
     throw error;
   }
@@ -50,6 +82,7 @@ export async function getSiteAnalysis(
         "Content-Type": "application/json",
         authorization: `Bearer ${apiKey}`,
       },
+      signal: AbortSignal.timeout(30000),
       body: JSON.stringify({
         model: "llama-3.1-8b-instant",
         messages: [
@@ -83,7 +116,12 @@ export async function getSiteAnalysis(
     });
 
     if (!response.ok) {
-      throw new Error("Analysis failed");
+      console.warn("Site analysis request failed", {
+        status: response.status,
+        statusText: response.statusText,
+        siteContentLength: siteContent.length,
+      });
+      throw new Error(`Failed to analyze website: ${response.statusText}`);
     }
 
     const aiData = await response.json();
