@@ -21,7 +21,7 @@ export async function getPageContent(
 
   const browserlessContentUrl = new URL("/unblock", browserlessUrl);
   browserlessContentUrl.searchParams.set("token", token);
-  browserlessContentUrl.searchParams.set("proxy", "residential");
+  // browserlessContentUrl.searchParams.set("proxy", "residential");
 
   // const browserlessContentUrl = `${browserlessUrl}/unblock?token=${token}&proxy=residential`;
   const data = {
