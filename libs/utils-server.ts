@@ -39,6 +39,7 @@ export async function getPageContent(
       headers: {
         "Content-Type": "application/json",
       },
+      signal: AbortSignal.timeout(30000),
       body: JSON.stringify(data),
     });
     if (!response.ok) {
@@ -81,6 +82,7 @@ export async function getSiteAnalysis(
         "Content-Type": "application/json",
         authorization: `Bearer ${apiKey}`,
       },
+      signal: AbortSignal.timeout(30000),
       body: JSON.stringify({
         model: "llama-3.1-8b-instant",
         messages: [

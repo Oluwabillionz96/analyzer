@@ -1,14 +1,6 @@
-import { getPageContent, getSiteAnalysis } from "@/libs/utils-server";
+import { getPageContent, getSiteAnalysis, isFullUrl } from "@/libs/utils-server";
 import { NextRequest, NextResponse } from "next/server";
 
-function isValidUrl(url: string): boolean {
-  try {
-    new URL(url);
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 export async function POST(req: NextRequest) {
   try {
@@ -18,7 +10,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "URL is required", success: false });
     }
 
-    if (!isValidUrl(url)) {
+    if (!isFullUrl(url)) {
       return NextResponse.json({ error: "Invalid URL", success: false });
     }
 
