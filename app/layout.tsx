@@ -14,7 +14,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Analysator",
-  description: "",
+  description:
+    "Analysator takes in a URL and returns a structured analysis of a landing page, including company name, business model, key features, target market and likely competitors.",
 };
 
 export default function RootLayout({

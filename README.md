@@ -33,7 +33,7 @@ Analysator is a tool that acts as a landing page's analyst. It takes in a URL an
 
 1. Clone the repository
 2. Install dependencies: `npm install`
-3. Set up environment variables: `cp example.env .env.local and update with your API keys
+3. Set up environment variables: `cp example.env .env.local` and update with your API keys
 4. Run the development server: `npm run dev`
 
 ## Environment Variables
@@ -48,7 +48,7 @@ Variable | Description
 ## How it works
 
 1. User submits URL via POST request to `/api/analyze`
-2. Server fetches page's content via Browserless, strips unwanted elements (e.g footer, nav, etc) and Parses HTML with Cheerio.
+2. Server fetches page's content via Browserless, strips unwanted elements (e.g footer, nav, etc) and parses HTML with Cheerio.
 3. Sends cleaned text to Groq with a structured system prompt
 4. Parses Groq's JSON response -> returns structured analysis to client
 
@@ -57,7 +57,8 @@ Variable | Description
 app/
     page.tsx           - main UI
     api/
-        analyze.ts     - POST handler for analysis requests
+        analyze/
+           route.ts     - POST handler for analysis requests
 components/
     analysis-card.tsx  - result display
     error-card.tsx     - error display
