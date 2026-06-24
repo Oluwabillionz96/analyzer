@@ -44,6 +44,7 @@ export default function Home() {
             onChange={(e) => setUrl(e.target.value)}
             required
             disabled={loading}
+            autoFocus
           />
           <button
             type="submit"
@@ -77,11 +78,7 @@ export default function Home() {
 
         <div className="mx-auto max-w-xl space-y-4">
           {error && !loading && (
-            <ErrorCard
-              message={error}
-              onDismiss={() => setError(null)}
-             
-            />
+            <ErrorCard message={error} onDismiss={() => setError(null)} />
           )}
           <AnalysisCard data={analysis} />
           {analysis && !loading && (
