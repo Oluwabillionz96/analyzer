@@ -121,6 +121,7 @@ export async function getSiteAnalysis(
         statusText: response.statusText,
         siteContentLength: siteContent.length,
       });
+      console.warn(response);
       throw new Error(`Failed to analyze website: ${response.statusText}`);
     }
 
