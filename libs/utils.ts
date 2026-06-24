@@ -11,7 +11,7 @@ export async function analyzeUrl(
       },
       body: JSON.stringify({ url }),
     });
-    if (response.ok) {
+    if (!response.ok) {
       const body = await response.json();
       throw new Error(body.error ?? body.message ?? `HTTP ${response.status}`);
     }
