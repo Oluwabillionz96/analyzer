@@ -8,7 +8,11 @@ interface ErrorCardProps {
   onRetry?: () => void;
 }
 
-export function ErrorCard({ message, onDismiss }: ErrorCardProps) {
+export default function ErrorCard({
+  message,
+  onDismiss,
+  onRetry,
+}: ErrorCardProps) {
   return (
     <div className="border border-red-200 bg-red-50 rounded-lg shadow-sm p-6 space-y-4">
       <div className="flex items-start gap-3">
@@ -26,6 +30,12 @@ export function ErrorCard({ message, onDismiss }: ErrorCardProps) {
           className="text-sm px-3 py-1.5 rounded-md bg-red-100 text-red-700 hover:bg-red-200 transition-colors cursor-pointer"
         >
           Dismiss
+        </button>
+        <button
+          onClick={onRetry}
+          className="text-sm px-3 py-1.5 rounded-md bg-red-100 text-red-700 hover:bg-red-200 transition-colors cursor-pointer"
+        >
+          Retry
         </button>
       </div>
     </div>

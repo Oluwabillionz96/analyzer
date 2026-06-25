@@ -3,8 +3,8 @@
 import { AnalysisResponse } from "@/libs/types";
 import { analyzeUrl } from "@/libs/utils";
 import { SubmitEvent, useState } from "react";
-import { AnalysisCard } from "@/components/analysis-card";
-import { ErrorCard } from "@/components/error-card";
+import AnalysisCard from "@/components/analysis-card";
+import ErrorCard from "@/components/error-card";
 
 export default function Home() {
   const [loading, setLoading] = useState(false);
@@ -12,19 +12,21 @@ export default function Home() {
   const [analysis, setAnalysis] = useState<AnalysisResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  function handleSubmit(e: SubmitEvent<HTMLFormElement>) {
-    e.preventDefault();
+  function handleSubmit(e?: SubmitEvent<HTMLFormElement>) {
+    e?.preventDefault();
     setLoading(true);
     setError(null);
     setAnalysis(null);
     analyzeUrl(url)
-      .then((response) => setAnalysis(response?.data ?? null))
+      .then((response) => {
+        setAnalysis(response?.data ?? null);
+        setUrl("");
+      })
       .catch((error) => {
         setError(error?.message ?? "Something went wrong");
         setAnalysis(null);
       })
       .finally(() => {
-        setUrl("");
         setLoading(false);
       });
   }
@@ -78,7 +80,14 @@ export default function Home() {
 
         <div className="mx-auto max-w-xl space-y-4">
           {error && !loading && (
-            <ErrorCard message={error} onDismiss={() => setError(null)} />
+            <ErrorCard
+              message={error}
+              onDismiss={() => {
+                setError(null);
+                setUrl("");
+              }}
+              onRetry={() => handleSubmit()}
+            />
           )}
           <AnalysisCard data={analysis} />
           {analysis && !loading && (

@@ -7,7 +7,7 @@ interface AnalysisCardProps {
   data: AnalysisResponse | null;
 }
 
-export function AnalysisCard({ data }: AnalysisCardProps) {
+export default function AnalysisCard({ data }: AnalysisCardProps) {
   if (!data) return null;
 
   return (
@@ -54,10 +54,7 @@ function TagList({ items }: { items: string[] }) {
   return (
     <div className="flex flex-wrap gap-2">
       {items.map((item) => (
-        <span
-          key={item}
-          className="bg-gray-100 rounded-full px-3 py-1 text-sm"
-        >
+        <span key={item} className="bg-gray-100 rounded-full px-3 py-1 text-sm">
           {item}
         </span>
       ))}
