@@ -1,4 +1,4 @@
-import { AnalysisResponse } from "../libs/types";
+import { AnalysisResponse, CachedAnalysis } from "../libs/types";
 import { load } from "cheerio";
 import pool from "./db";
 
@@ -140,9 +140,7 @@ export async function getSiteAnalysis(
   }
 }
 
-export async function getFromDB(
-  url: string,
-): Promise<AnalysisResponse | false> {
+export async function getFromDB(url: string): Promise<CachedAnalysis | false> {
   try {
     const result = await pool.query(
       `SELECT * FROM analyses WHERE url = $1 LIMIT 1`,
@@ -184,4 +182,39 @@ export async function addToDB(analysis: AnalysisResponse, url: string) {
   } catch (error) {
     throw error;
   }
+}
+
+export async function updateSearchcount(id: string) {
+  try {
+    await pool.query(
+      `UPDATE analyses SET searchcount = searchcount + 1 WHERE id = $1`,
+      [id],
+    );
+  } catch (error) {
+    throw error;
+  }
+}
+
+export function isThreeDaysOld(createdAt: string): boolean {
+  const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+  return new Date(createdAt) < threeDaysAgo;
+}
+
+export async function updateCache(
+  updatedAnalysis: AnalysisResponse,
+  id: string,
+) {
+  await pool.query(
+    `UPDATE analyses AS a SET "companyName" = $1, summary = $2, "targetCustomers" = $3, "businessModel" = $4, "keyFeatures" = $5, "likelyCompetitors" = $6, "confidenceNotes" = $7 WHERE id = $8`,
+    [
+      updatedAnalysis.companyName,
+      updatedAnalysis.summary,
+      JSON.stringify(updatedAnalysis.targetCustomers),
+      updatedAnalysis.businessModel,
+      JSON.stringify(updatedAnalysis.keyFeatures),
+      JSON.stringify(updatedAnalysis.likelyCompetitors),
+      updatedAnalysis.confidenceNotes,
+      id,
+    ],
+  );
 }

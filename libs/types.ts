@@ -14,3 +14,9 @@ export interface AnalysisResponse {
   confidenceNotes: string;
 }
 
+export interface CachedAnalysis extends AnalysisResponse {
+  id: string;
+  created_at: string;
+  searchcount: number;
+  updated_at: string;
+}

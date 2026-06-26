@@ -4,8 +4,35 @@ import {
   getPageContent,
   getSiteAnalysis,
   isFullUrl,
+  isThreeDaysOld,
+  updateCache,
+  updateSearchcount,
 } from "@/libs/utils-server";
 import { NextRequest, NextResponse } from "next/server";
+
+async function analyze(url: string) {
+  try {
+    const pageContent = await getPageContent(
+      url,
+      process.env.BROWSERLESS_API_KEY,
+      process.env.BROWSERLESS_URL,
+    );
+
+    if (!pageContent) {
+      throw new Error("Website could not be analyzed");
+    }
+
+    const analysis = await getSiteAnalysis(
+      process.env.GROQ_REQUEST_URL,
+      pageContent,
+      process.env.GROQ_API_KEY,
+    );
+
+    return analysis;
+  } catch (error) {
+    throw error;
+  }
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -31,23 +58,36 @@ export async function POST(req: NextRequest) {
     const cachedAnalysis = await getFromDB(url);
 
     if (cachedAnalysis) {
-      return NextResponse.json({ success: true, data: cachedAnalysis });
+      const { id, created_at, updated_at, searchcount, ...analysis } =
+        cachedAnalysis;
+      void searchcount;
+      void created_at;
+
+      let siteAnalysis = analysis;
+
+      if (isThreeDaysOld(updated_at)) {
+        siteAnalysis = await analyze(url);
+        try {
+          await Promise.all([
+            updateCache(siteAnalysis, id),
+            updateSearchcount(id),
+          ]);
+        } catch (error) {
+          console.warn({ error });
+        }
+        return NextResponse.json({ success: true, data: siteAnalysis });
+      }
+
+      try {
+        await updateSearchcount(id);
+      } catch (error) {
+        console.warn({ error });
+      }
+      return NextResponse.json({ success: true, data: siteAnalysis });
     }
 
-    const pageContent = await getPageContent(
-      url,
-      process.env.BROWSERLESS_API_KEY,
-      process.env.BROWSERLESS_URL,
-    );
+    const analysis = await analyze(url);
 
-    if (!pageContent) {
-      throw new Error("Website could not be analyzed");
-    }
-    const analysis = await getSiteAnalysis(
-      process.env.GROQ_REQUEST_URL,
-      pageContent,
-      process.env.GROQ_API_KEY,
-    );
     try {
       await addToDB(analysis, url);
     } catch (dbError) {
