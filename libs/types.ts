@@ -13,3 +13,4 @@ export interface AnalysisResponse {
   likelyCompetitors: string[];
   confidenceNotes: string;
 }
+

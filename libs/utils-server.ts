@@ -1,5 +1,6 @@
 import { AnalysisResponse } from "../libs/types";
 import { load } from "cheerio";
+import pool from "./db";
 
 export function isFullUrl(url: string) {
   try {
@@ -134,6 +135,52 @@ export async function getSiteAnalysis(
     }
 
     return aiResponse as AnalysisResponse;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function getFromDB(
+  url: string,
+): Promise<AnalysisResponse | false> {
+  try {
+    const result = await pool.query(
+      `SELECT * FROM analyses WHERE url = $1 LIMIT 1`,
+      [url],
+    );
+    return result.rows[0] ? result.rows[0] : false;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function addToDB(analysis: AnalysisResponse, url: string) {
+  if (!analysis || !url) return;
+
+  const {
+    companyName,
+    summary,
+    targetCustomers,
+    businessModel,
+    keyFeatures,
+    likelyCompetitors,
+    confidenceNotes,
+  } = analysis;
+  try {
+    await pool.query(
+      `INSERT INTO analyses (url, "companyName", summary, "targetCustomers", "businessModel", "keyFeatures", "likelyCompetitors", "confidenceNotes")
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+      [
+        url,
+        companyName,
+        summary,
+        JSON.stringify(targetCustomers),
+        businessModel,
+        JSON.stringify(keyFeatures),
+        JSON.stringify(likelyCompetitors),
+        confidenceNotes,
+      ],
+    );
   } catch (error) {
     throw error;
   }

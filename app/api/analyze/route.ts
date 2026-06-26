@@ -1,4 +1,6 @@
 import {
+  addToDB,
+  getFromDB,
   getPageContent,
   getSiteAnalysis,
   isFullUrl,
@@ -26,6 +28,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const cachedAnalysis = await getFromDB(url);
+
+    if (cachedAnalysis) {
+      return NextResponse.json({ success: true, data: cachedAnalysis });
+    }
+
     const pageContent = await getPageContent(
       url,
       process.env.BROWSERLESS_API_KEY,
@@ -40,7 +48,11 @@ export async function POST(req: NextRequest) {
       pageContent,
       process.env.GROQ_API_KEY,
     );
-
+    try {
+      await addToDB(analysis, url);
+    } catch (dbError) {
+      console.warn({ dbError });
+    }
     return NextResponse.json({
       success: true,
       data: analysis,
