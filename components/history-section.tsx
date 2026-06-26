@@ -1,15 +1,15 @@
 "use client";
 
-import { AnalysisResponse, CachedAnalysis } from "@/libs/types";
+import { CachedAnalysis } from "@/libs/types";
 import HistoryCard from "./history-card";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getAllHistory } from "@/libs/utils";
 
 export default function HistorySection({
   onSelectAction,
   isOpen,
 }: {
-  onSelectAction: Dispatch<SetStateAction<AnalysisResponse | null>>;
+  onSelectAction: (id: string) => void;
   isOpen: boolean;
 }) {
   const [history, setHistory] = useState<CachedAnalysis[] | null>(null);
@@ -73,22 +73,7 @@ export default function HistorySection({
                 <li key={item.id}>
                   <button
                     className="text-left w-full hover:bg-gray-50 transition-colors rounded-lg"
-                    onClick={() => {
-                      const {
-                        id,
-                        created_at,
-                        updated_at,
-                        url,
-                        searchcount,
-                        ...analysis
-                      } = item;
-                      void id;
-                      void created_at;
-                      void updated_at;
-                      void url;
-                      void searchcount;
-                      onSelectAction(analysis);
-                    }}
+                    onClick={() => onSelectAction(item.id)}
                   >
                     <HistoryCard data={item} />
                   </button>

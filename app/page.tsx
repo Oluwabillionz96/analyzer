@@ -1,7 +1,7 @@
 "use client";
 
 import { AnalysisResponse } from "@/libs/types";
-import { analyzeUrl } from "@/libs/utils";
+import { analyzeUrl, getAnalysisById } from "@/libs/utils";
 import { SubmitEvent, useState } from "react";
 import AnalysisCard from "@/components/analysis-card";
 import ErrorCard from "@/components/error-card";
@@ -13,6 +13,27 @@ export default function Home() {
   const [analysis, setAnalysis] = useState<AnalysisResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  async function handleSelection(id: string) {
+    try {
+      setLoading(true);
+      setAnalysis(null);
+      const response = await getAnalysisById(id);
+      console.log(response);
+      if (!response?.success) {
+        console.log("Here");
+        throw new Error(response?.error);
+      }
+      setAnalysis(response?.data ?? null);
+
+      setError(null);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : String(error));
+      setAnalysis(null);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   function handleSubmit(e?: SubmitEvent<HTMLFormElement>) {
     e?.preventDefault();
@@ -36,7 +57,7 @@ export default function Home() {
   return (
     <div className="flex">
       <main className={"flex-1 min-w-0 " + (sidebarOpen ? "md:pr-80" : "pr-0")}>
-        <section className="h-screen place-items-center grid max-w-xl mx-auto py-4 px-6 space-y-6">
+        <section className="min-h-screen place-items-center grid max-w-xl mx-auto py-4 px-6 space-y-6">
           <form
             className="flex flex-col md:flex-row w-full justify-center gap-4"
             onSubmit={handleSubmit}
@@ -104,11 +125,14 @@ export default function Home() {
       </main>
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
-        className={"fixed top-4 z-50 border rounded px-2 py-1 text-sm bg-white cursor-pointer transition-all duration-300 " + (sidebarOpen ? "right-4 md:right-[21rem]" : "right-4")}
+        className={
+          "fixed top-4 z-50 border rounded px-2 py-1 text-sm bg-white cursor-pointer transition-all duration-300 " +
+          (sidebarOpen ? "right-4 md:right-84" : "right-4")
+        }
       >
         {sidebarOpen ? "Hide" : "History"}
       </button>
-      <HistorySection onSelectAction={setAnalysis} isOpen={sidebarOpen} />
+      <HistorySection onSelectAction={handleSelection} isOpen={sidebarOpen} />
     </div>
   );
 }
