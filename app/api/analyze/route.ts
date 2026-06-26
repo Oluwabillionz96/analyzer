@@ -8,6 +8,7 @@ import {
   updateCache,
   updateSearchcount,
 } from "@/libs/utils-server";
+import { AnalysisResponse } from "@/libs/types";
 import { NextRequest, NextResponse } from "next/server";
 
 async function analyze(url: string) {
@@ -58,12 +59,13 @@ export async function POST(req: NextRequest) {
     const cachedAnalysis = await getFromDB(url);
 
     if (cachedAnalysis) {
-      const { id, created_at, updated_at, searchcount, ...analysis } =
+      const { id, url: cachedUrl, created_at, updated_at, searchcount, ...analysis } =
         cachedAnalysis;
       void searchcount;
       void created_at;
+      void cachedUrl;
 
-      let siteAnalysis = analysis;
+      let siteAnalysis: AnalysisResponse = analysis;
 
       if (isThreeDaysOld(updated_at)) {
         siteAnalysis = await analyze(url);
