@@ -12,6 +12,7 @@ export default function Home() {
   const [url, setUrl] = useState("");
   const [analysis, setAnalysis] = useState<AnalysisResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   function handleSubmit(e?: SubmitEvent<HTMLFormElement>) {
     e?.preventDefault();
@@ -33,9 +34,9 @@ export default function Home() {
   }
 
   return (
-    <>
-      <section className=" grid place-items-center py-4 px-6">
-        <div className="w-full space-y-6">
+    <div className="flex">
+      <main className={"flex-1 min-w-0 " + (sidebarOpen ? "md:pr-80" : "pr-0")}>
+        <section className="h-screen place-items-center grid max-w-xl mx-auto py-4 px-6 space-y-6">
           <form
             className="flex flex-col md:flex-row w-full justify-center gap-4"
             onSubmit={handleSubmit}
@@ -43,7 +44,7 @@ export default function Home() {
             <input
               type="url"
               placeholder="Enter Url"
-              className="border px-6 py-2 rounded-lg w-fill md:w-3/10 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="border w-full px-6 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               required
@@ -60,35 +61,33 @@ export default function Home() {
           </form>
 
           {loading && (
-            <div className="mx-auto max-w-xl">
-              <div className="border rounded-lg shadow-sm p-6 space-y-4 animate-pulse">
-                <div className="h-7 bg-gray-200 rounded w-1/3" />
-                <div className="space-y-2">
-                  <div className="h-4 bg-gray-200 rounded w-1/4" />
-                  <div className="h-4 bg-gray-200 rounded w-full" />
-                  <div className="h-4 bg-gray-200 rounded w-5/6" />
-                </div>
-                <div className="space-y-2">
-                  <div className="h-4 bg-gray-200 rounded w-1/4" />
-                  <div className="flex flex-wrap gap-2">
-                    <div className="h-6 bg-gray-200 rounded-full w-20" />
-                    <div className="h-6 bg-gray-200 rounded-full w-24" />
-                    <div className="h-6 bg-gray-200 rounded-full w-16" />
-                  </div>
+            <div className="border rounded-lg shadow-sm p-6 space-y-4 animate-pulse">
+              <div className="h-7 bg-gray-200 rounded w-1/3" />
+              <div className="space-y-2">
+                <div className="h-4 bg-gray-200 rounded w-1/4" />
+                <div className="h-4 bg-gray-200 rounded w-full" />
+                <div className="h-4 bg-gray-200 rounded w-5/6" />
+              </div>
+              <div className="space-y-2">
+                <div className="h-4 bg-gray-200 rounded w-1/4" />
+                <div className="flex flex-wrap gap-2">
+                  <div className="h-6 bg-gray-200 rounded-full w-20" />
+                  <div className="h-6 bg-gray-200 rounded-full w-24" />
+                  <div className="h-6 bg-gray-200 rounded-full w-16" />
                 </div>
               </div>
             </div>
           )}
 
-          <div className="mx-auto max-w-xl space-y-4">
+          <div className="space-y-4">
             {error && !loading && (
               <ErrorCard
                 message={error}
-                onDismiss={() => {
+                onDismissAction={() => {
                   setError(null);
                   setUrl("");
                 }}
-                onRetry={() => handleSubmit()}
+                onRetryAction={() => handleSubmit()}
               />
             )}
             <AnalysisCard data={analysis} />
@@ -101,9 +100,15 @@ export default function Home() {
               </button>
             )}
           </div>
-        </div>
-      </section>
-      <HistorySection setAnalysis={setAnalysis} />
-    </>
+        </section>
+      </main>
+      <button
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        className={"fixed top-4 z-50 border rounded px-2 py-1 text-sm bg-white cursor-pointer transition-all duration-300 " + (sidebarOpen ? "right-4 md:right-[21rem]" : "right-4")}
+      >
+        {sidebarOpen ? "Hide" : "History"}
+      </button>
+      <HistorySection onSelectAction={setAnalysis} isOpen={sidebarOpen} />
+    </div>
   );
 }
