@@ -1,12 +1,7 @@
 "use client";
 
 import { AnalysisResponse, CachedAnalysis } from "@/libs/types";
-import {
-  analyzeUrl,
-  fetchHistory,
-  getAllHistory,
-  getAnalysisById,
-} from "@/libs/utils";
+import { analyzeUrl, fetchHistory, getAnalysisById } from "@/libs/utils";
 import { SubmitEvent, useEffect, useState } from "react";
 import AnalysisCard from "@/components/analysis-card";
 import ErrorCard from "@/components/error-card";
@@ -104,27 +99,26 @@ export default function Home() {
                 {loading.analysis ? "Analyzing..." : "Analyze"}
               </button>
             </form>
-            {loading.analysis ||
-              (loading.fromHistory && (
-                <div className="border rounded-lg shadow-sm p-6 space-y-4 animate-pulse">
-                  <div className="h-7 bg-gray-200 rounded w-1/3" />
-                  <div className="space-y-2">
-                    <div className="h-4 bg-gray-200 rounded w-1/4" />
-                    <div className="h-4 bg-gray-200 rounded w-full" />
-                    <div className="h-4 bg-gray-200 rounded w-5/6" />
-                  </div>
-                  <div className="space-y-2">
-                    <div className="h-4 bg-gray-200 rounded w-1/4" />
-                    <div className="flex flex-wrap gap-2">
-                      <div className="h-6 bg-gray-200 rounded-full w-20" />
-                      <div className="h-6 bg-gray-200 rounded-full w-24" />
-                      <div className="h-6 bg-gray-200 rounded-full w-16" />
-                    </div>
+            {(loading.analysis || loading.fromHistory) && (
+              <div className="border rounded-lg shadow-sm p-6 space-y-4 animate-pulse">
+                <div className="h-7 bg-gray-200 rounded w-1/3" />
+                <div className="space-y-2">
+                  <div className="h-4 bg-gray-200 rounded w-1/4" />
+                  <div className="h-4 bg-gray-200 rounded w-full" />
+                  <div className="h-4 bg-gray-200 rounded w-5/6" />
+                </div>
+                <div className="space-y-2">
+                  <div className="h-4 bg-gray-200 rounded w-1/4" />
+                  <div className="flex flex-wrap gap-2">
+                    <div className="h-6 bg-gray-200 rounded-full w-20" />
+                    <div className="h-6 bg-gray-200 rounded-full w-24" />
+                    <div className="h-6 bg-gray-200 rounded-full w-16" />
                   </div>
                 </div>
-              ))}
+              </div>
+            )}
             <div className="space-y-4">
-              {error && !loading && (
+              {error && !loading.analysis && !loading.fromHistory && (
                 <ErrorCard
                   message={error}
                   onDismissAction={() => {
@@ -135,7 +129,7 @@ export default function Home() {
                 />
               )}
               <AnalysisCard data={analysis} />
-              {analysis && !loading && (
+              {analysis && !loading.analysis && !loading.fromHistory && (
                 <button
                   onClick={() => setAnalysis(null)}
                   className="border w-full px-4 rounded-lg cursor-pointer py-2 bg-gray-500 text-white hover:bg-transparent hover:text-black transition-all duration-500"

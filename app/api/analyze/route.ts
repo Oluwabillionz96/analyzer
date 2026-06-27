@@ -1,4 +1,4 @@
-import { isFullUrl, isThreeDaysOld } from "@/libs/utils-server";
+import { cleanUrl, isFullUrl, isThreeDaysOld } from "@/libs/utils-server";
 import { AnalysisResponse } from "@/libs/types";
 import { NextRequest, NextResponse } from "next/server";
 import getPageContent from "@/libs/get-page-content";
@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const cachedAnalysis = await getFromDB(url);
+    const cachedAnalysis = await getFromDB(cleanUrl(url));
 
     if (cachedAnalysis) {
       const {

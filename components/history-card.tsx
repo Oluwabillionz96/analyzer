@@ -22,7 +22,7 @@ export default function HistoryCard({ data }: HistoryCardProps) {
       <p className="text-xs text-gray-500">
         Searched {data.searchcount} time{data.searchcount !== 1 ? "s" : ""}
       </p>
-      <p className="text-xs text-gray-400 truncate">{data.url}</p>
+      <p className="text-xs text-gray-400 truncate">{decodeURIComponent(data.url)}</p>
     </article>
   );
 }

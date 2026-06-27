@@ -2,8 +2,6 @@
 
 import { CachedAnalysis } from "@/libs/types";
 import HistoryCard from "./history-card";
-import { useEffect, useState } from "react";
-import { getAllHistory } from "@/libs/utils";
 
 export default function HistorySection({
   onSelectAction,

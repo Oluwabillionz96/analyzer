@@ -1,5 +1,6 @@
 import pool from "./db";
 import { AnalysisResponse, CachedAnalysis } from "./types";
+import { cleanUrl } from "./utils-server";
 
 export async function getFromDB(url: string): Promise<CachedAnalysis | false> {
   try {
@@ -25,12 +26,13 @@ export async function addToDB(analysis: AnalysisResponse, url: string) {
     likelyCompetitors,
     confidenceNotes,
   } = analysis;
+
   try {
     await pool.query(
       `INSERT INTO analyses (url, "companyName", summary, "targetCustomers", "businessModel", "keyFeatures", "likelyCompetitors", "confidenceNotes")
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
       [
-        url,
+        cleanUrl(url),
         companyName,
         summary,
         JSON.stringify(targetCustomers),
