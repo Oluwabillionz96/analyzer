@@ -17,8 +17,7 @@ export async function PATCH(req: NextRequest) {
     );
 
     try {
-      await updateSearchcount(result.rows[0].id);
-      console.log("updated");
+      await updateSearchcount(id);
     } catch (error) {
       throw error;
     }

@@ -20,9 +20,7 @@ export default function Home() {
       setLoading(true);
       setAnalysis(null);
       const response = await getAnalysisById(id);
-      console.log(response);
       if (!response?.success) {
-        console.log("Here");
         throw new Error(response?.error);
       }
       setAnalysis(response?.data ?? null);

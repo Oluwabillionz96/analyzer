@@ -47,6 +47,9 @@ export async function addToDB(analysis: AnalysisResponse, url: string) {
 
 export async function updateSearchcount(id: string) {
   try {
+    if (!id) {
+      throw new Error("id is required");
+    }
     await pool.query(
       `UPDATE analyses SET searchcount = searchcount + 1 WHERE id = $1`,
       [id],
