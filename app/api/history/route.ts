@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 export async function GET() {
   try {
     const results = await pool.query(
-      `SELECT url, id, "companyName", created_at, updated_at, searchcount FROM analyses ORDER BY searchcount DESC, updated_at DESC, created_at DESC`,
+      `SELECT url, id, "companyName", created_at, updated_at, searchcount FROM analyses WHERE is_success = true ORDER BY searchcount DESC, updated_at DESC, created_at DESC `,
     );
     return NextResponse.json({ success: true, data: results.rows });
   } catch (error) {

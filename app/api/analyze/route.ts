@@ -1,15 +1,14 @@
+import { isFullUrl, isThreeDaysOld } from "@/libs/utils-server";
+import { AnalysisResponse } from "@/libs/types";
+import { NextRequest, NextResponse } from "next/server";
+import getPageContent from "@/libs/get-page-content";
+import getSiteAnalysis from "@/libs/get-analysis";
 import {
   addToDB,
   getFromDB,
-  getPageContent,
-  getSiteAnalysis,
-  isFullUrl,
-  isThreeDaysOld,
   updateCache,
   updateSearchcount,
-} from "@/libs/utils-server";
-import { AnalysisResponse } from "@/libs/types";
-import { NextRequest, NextResponse } from "next/server";
+} from "@/libs/db-utils";
 
 async function analyze(url: string) {
   try {
@@ -27,6 +26,7 @@ async function analyze(url: string) {
       process.env.GROQ_REQUEST_URL,
       pageContent,
       process.env.GROQ_API_KEY,
+      url,
     );
 
     return analysis;
@@ -59,8 +59,14 @@ export async function POST(req: NextRequest) {
     const cachedAnalysis = await getFromDB(url);
 
     if (cachedAnalysis) {
-      const { id, url: cachedUrl, created_at, updated_at, searchcount, ...analysis } =
-        cachedAnalysis;
+      const {
+        id,
+        url: cachedUrl,
+        created_at,
+        updated_at,
+        searchcount,
+        ...analysis
+      } = cachedAnalysis;
       void searchcount;
       void created_at;
       void cachedUrl;

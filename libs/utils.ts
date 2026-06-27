@@ -26,9 +26,17 @@ export async function analyzeUrl(
   }
 }
 
-export async function getAnalysisById(id: string): Promise<ApiResponse<AnalysisResponse>> {
+export async function getAnalysisById(
+  id: string,
+): Promise<ApiResponse<AnalysisResponse>> {
   try {
-    const response = await fetch(`/api/pastAnalyzes?id=${id}`);
+    const response = await fetch(`/api/pastAnalyzes`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id }),
+    });
     if (!response.ok) {
       const body = await response.json();
       throw new Error(body.error ?? body.message ?? `HTTP ${response.status}`);
