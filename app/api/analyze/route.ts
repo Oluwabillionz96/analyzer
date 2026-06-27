@@ -65,6 +65,8 @@ export async function POST(req: NextRequest) {
         created_at,
         updated_at,
         searchcount,
+        is_success,
+        error,
         ...analysis
       } = cachedAnalysis;
       void searchcount;
@@ -72,6 +74,10 @@ export async function POST(req: NextRequest) {
       void cachedUrl;
 
       let siteAnalysis: AnalysisResponse = analysis;
+
+      if (!is_success) {
+        return NextResponse.json({ success: is_success, error });
+      }
 
       if (isThreeDaysOld(updated_at)) {
         siteAnalysis = await analyze(url);

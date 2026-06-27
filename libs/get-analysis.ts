@@ -35,8 +35,12 @@ export default async function getSiteAnalysis(
               - likelyCompetitors (array of strings): Companies offering similar products
               - confidenceNotes (string): What you're sure about vs what you inferred
 
-              If the content does not appear to be from a company website or if the content is too short for a correct analysis, return:
-              { "error": true, "message": "This page does not appear to be a company website" }
+              If the content is too short for a correct analysis return:
+              { "error": true, "message": "Site could not be analyzed due to insufficient content" }
+
+              If the content does not belong to a company, product, service, or organization — or if you're unsure what's being offered — do NOT make up a response. Instead return:
+              { "error": true, "message": "The site content does not clearly describe a company, product, or service. It may be a blog, documentation, or non-commercial page." }
+
 
               Return ONLY valid JSON. No explanation. No markdown.
 `,
