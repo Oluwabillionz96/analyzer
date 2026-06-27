@@ -8,27 +8,16 @@ import { getAllHistory } from "@/libs/utils";
 export default function HistorySection({
   onSelectAction,
   isOpen,
+  loading,
+  history = [],
 }: {
   onSelectAction: (id: string) => void;
   isOpen: boolean;
+  loading: boolean;
+  history: CachedAnalysis[];
 }) {
-  const [history, setHistory] = useState<CachedAnalysis[] | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    if (!isMounted) return;
-    getAllHistory()
-      .then((data) => setHistory(data?.data || null))
-      .catch((err) => setError(err))
-      .finally(() => setLoading(false));
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+  // const [history, setHistory] = useState<CachedAnalysis[] | null>(null);
+  // const [error, setError] = useState<string | null>();
 
   return (
     <>
@@ -58,10 +47,6 @@ export default function HistorySection({
                 </li>
               ))}
             </ul>
-          ) : error ? (
-            <div className="text-center py-12 text-gray-400">
-              <p>{error}</p>
-            </div>
           ) : history?.length === 0 ? (
             <div className="text-center py-12 text-gray-400">
               <p>No past analyses yet</p>

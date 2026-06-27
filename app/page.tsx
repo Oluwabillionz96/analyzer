@@ -1,57 +1,81 @@
 "use client";
 
-import { AnalysisResponse } from "@/libs/types";
-import { analyzeUrl, getAnalysisById } from "@/libs/utils";
-import { SubmitEvent, useState } from "react";
+import { AnalysisResponse, CachedAnalysis } from "@/libs/types";
+import {
+  analyzeUrl,
+  fetchHistory,
+  getAllHistory,
+  getAnalysisById,
+} from "@/libs/utils";
+import { SubmitEvent, useEffect, useState } from "react";
 import AnalysisCard from "@/components/analysis-card";
 import ErrorCard from "@/components/error-card";
 import HistorySection from "@/components/history-section";
 import { History, PanelRightClose } from "lucide-react";
 
 export default function Home() {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState({
+    analysis: false,
+    history: true,
+    fromHistory: false,
+  });
   const [url, setUrl] = useState("");
   const [analysis, setAnalysis] = useState<AnalysisResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [history, setHistory] = useState<CachedAnalysis[]>([]);
 
   async function handleSelection(id: string) {
     try {
-      setLoading(true);
+      setLoading({ ...loading, fromHistory: true });
       setAnalysis(null);
       const response = await getAnalysisById(id);
       if (!response?.success) {
         throw new Error(response?.error);
       }
       setAnalysis(response?.data ?? null);
+      await fetchHistory(setHistory, loading, setLoading);
 
       setError(null);
     } catch (error) {
       setError(error instanceof Error ? error.message : String(error));
       setAnalysis(null);
     } finally {
-      setLoading(false);
+      setLoading({ ...loading, fromHistory: false });
     }
   }
 
   function handleSubmit(e?: SubmitEvent<HTMLFormElement>) {
     e?.preventDefault();
-    setLoading(true);
+    setLoading({ ...loading, analysis: true });
     setError(null);
     setAnalysis(null);
     analyzeUrl(url)
       .then((response) => {
         setAnalysis(response?.data ?? null);
         setUrl("");
+        fetchHistory(setHistory, loading, setLoading);
       })
       .catch((error) => {
         setError(error?.message ?? "Something went wrong");
         setAnalysis(null);
       })
       .finally(() => {
-        setLoading(false);
+        setLoading({ ...loading, analysis: false });
       });
   }
+
+  useEffect(() => {
+    let isMounted = true;
+
+    if (!isMounted) return;
+
+    fetchHistory(setHistory, loading, setLoading);
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <div className="flex">
@@ -69,35 +93,36 @@ export default function Home() {
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 required
-                disabled={loading}
+                disabled={loading.analysis || loading.fromHistory}
                 autoFocus
               />
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading.analysis || loading.fromHistory}
                 className="border px-4 rounded-lg cursor-pointer py-2 md:py-0 bg-gray-500 text-white hover:bg-transparent disabled:hover:cursor-not-allowed disabled:opacity-50 hover:text-black transition-all duration-500"
               >
-                {loading ? "Analyzing..." : "Analyze"}
+                {loading.analysis ? "Analyzing..." : "Analyze"}
               </button>
             </form>
-            {loading && (
-              <div className="border rounded-lg shadow-sm p-6 space-y-4 animate-pulse">
-                <div className="h-7 bg-gray-200 rounded w-1/3" />
-                <div className="space-y-2">
-                  <div className="h-4 bg-gray-200 rounded w-1/4" />
-                  <div className="h-4 bg-gray-200 rounded w-full" />
-                  <div className="h-4 bg-gray-200 rounded w-5/6" />
-                </div>
-                <div className="space-y-2">
-                  <div className="h-4 bg-gray-200 rounded w-1/4" />
-                  <div className="flex flex-wrap gap-2">
-                    <div className="h-6 bg-gray-200 rounded-full w-20" />
-                    <div className="h-6 bg-gray-200 rounded-full w-24" />
-                    <div className="h-6 bg-gray-200 rounded-full w-16" />
+            {loading.analysis ||
+              (loading.fromHistory && (
+                <div className="border rounded-lg shadow-sm p-6 space-y-4 animate-pulse">
+                  <div className="h-7 bg-gray-200 rounded w-1/3" />
+                  <div className="space-y-2">
+                    <div className="h-4 bg-gray-200 rounded w-1/4" />
+                    <div className="h-4 bg-gray-200 rounded w-full" />
+                    <div className="h-4 bg-gray-200 rounded w-5/6" />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-4 bg-gray-200 rounded w-1/4" />
+                    <div className="flex flex-wrap gap-2">
+                      <div className="h-6 bg-gray-200 rounded-full w-20" />
+                      <div className="h-6 bg-gray-200 rounded-full w-24" />
+                      <div className="h-6 bg-gray-200 rounded-full w-16" />
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              ))}
             <div className="space-y-4">
               {error && !loading && (
                 <ErrorCard
@@ -131,7 +156,12 @@ export default function Home() {
       >
         {sidebarOpen ? <PanelRightClose /> : <History />}
       </button>
-      <HistorySection onSelectAction={handleSelection} isOpen={sidebarOpen} />
+      <HistorySection
+        loading={loading.history}
+        onSelectAction={handleSelection}
+        isOpen={sidebarOpen}
+        history={history}
+      />
     </div>
   );
 }

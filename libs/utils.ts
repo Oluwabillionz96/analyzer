@@ -1,4 +1,11 @@
+import { Dispatch, SetStateAction } from "react";
 import { AnalysisResponse, ApiResponse, CachedAnalysis } from "./types";
+
+type LoadingState = {
+  analysis: boolean;
+  history: boolean;
+  fromHistory: boolean;
+};
 
 export async function analyzeUrl(
   url: string,
@@ -61,5 +68,21 @@ export async function getAllHistory(): Promise<ApiResponse<CachedAnalysis[]>> {
   } catch (error) {
     console.log(error);
     throw error;
+  }
+}
+
+export async function fetchHistory(
+  setHistory: Dispatch<SetStateAction<CachedAnalysis[]>>,
+  loading: LoadingState,
+  setLoading: Dispatch<SetStateAction<LoadingState>>,
+) {
+  setLoading({ ...loading, history: true });
+  try {
+    const data = await getAllHistory();
+    setHistory(data?.data || []);
+  } catch (error) {
+    console.warn(error);
+  } finally {
+    setLoading({ ...loading, history: false });
   }
 }
