@@ -56,9 +56,11 @@ export async function getAnalysisById(
   }
 }
 
-export async function getAllHistory(): Promise<ApiResponse<CachedAnalysis[]>> {
+export async function getAllHistory(
+  page: number,
+): Promise<ApiResponse<CachedAnalysis[]>> {
   try {
-    const response = await fetch("/api/history");
+    const response = await fetch(`/api/history?page=${page}`);
     if (!response.ok) {
       const body = await response.json();
       throw new Error(body.error ?? body.message ?? `HTTP ${response.status}`);
@@ -75,10 +77,11 @@ export async function fetchHistory(
   setHistory: Dispatch<SetStateAction<CachedAnalysis[]>>,
   loading: LoadingState,
   setLoading: Dispatch<SetStateAction<LoadingState>>,
+  page = 1,
 ) {
   setLoading({ ...loading, history: true });
   try {
-    const data = await getAllHistory();
+    const data = await getAllHistory(page);
     setHistory(data?.data || []);
   } catch (error) {
     console.warn(error);
