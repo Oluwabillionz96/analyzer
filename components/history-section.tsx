@@ -2,17 +2,20 @@
 
 import { CachedAnalysis } from "@/libs/types";
 import HistoryCard from "./history-card";
+import { RefObject } from "react";
 
 export default function HistorySection({
   onSelectAction,
   isOpen,
   loading,
   history = [],
+  historyBarRef,
 }: {
   onSelectAction: (id: string) => void;
   isOpen: boolean;
   loading: boolean;
   history: CachedAnalysis[];
+  historyBarRef: RefObject<HTMLDivElement | null>;
 }) {
   // const [history, setHistory] = useState<CachedAnalysis[] | null>(null);
   // const [error, setError] = useState<string | null>();
@@ -27,25 +30,11 @@ export default function HistorySection({
             ? "translate-x-0 shadow-2xl md:shadow-none"
             : "translate-x-full")
         }
+        ref={historyBarRef}
       >
         <div className="space-y-4">
           <h2 className="text-lg font-semibold">People also searched:</h2>
-          {loading ? (
-            <ul className="space-y-3">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <li key={i}>
-                  <div className="border rounded-lg shadow-sm p-4 space-y-2 animate-pulse">
-                    <div className="flex justify-between">
-                      <div className="h-4 bg-gray-200 rounded w-2/3" />
-                      <div className="h-3 bg-gray-200 rounded w-14" />
-                    </div>
-                    <div className="h-3 bg-gray-200 rounded w-1/4" />
-                    <div className="h-3 bg-gray-200 rounded w-full" />
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : history?.length === 0 ? (
+          {history?.length === 0 ? (
             <div className="text-center py-12 text-gray-400">
               <p>No past analyses yet</p>
               <p className="text-sm">Your analyzed URLs will appear here</p>
@@ -64,6 +53,24 @@ export default function HistorySection({
               ))}
             </ul>
           )}
+          <>
+            {loading && (
+              <ul className="space-y-3">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <li key={i}>
+                    <div className="border rounded-lg shadow-sm p-4 space-y-2 animate-pulse">
+                      <div className="flex justify-between">
+                        <div className="h-4 bg-gray-200 rounded w-2/3" />
+                        <div className="h-3 bg-gray-200 rounded w-14" />
+                      </div>
+                      <div className="h-3 bg-gray-200 rounded w-1/4" />
+                      <div className="h-3 bg-gray-200 rounded w-full" />
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </>
         </div>
       </aside>
     </>

@@ -1,8 +1,13 @@
 "use client";
 
 import { AnalysisResponse, CachedAnalysis } from "@/libs/types";
-import { analyzeUrl, fetchHistory, getAnalysisById } from "@/libs/utils";
-import { SubmitEvent, useEffect, useState } from "react";
+import {
+  analyzeUrl,
+  fetchHistory,
+  getAllHistory,
+  getAnalysisById,
+} from "@/libs/utils";
+import { SubmitEvent, useEffect, useRef, useState } from "react";
 import AnalysisCard from "@/components/analysis-card";
 import ErrorCard from "@/components/error-card";
 import HistorySection from "@/components/history-section";
@@ -19,6 +24,32 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [history, setHistory] = useState<CachedAnalysis[]>([]);
+  const historyBarRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!historyBarRef.current) {
+      console.log("None");
+      return;
+    }
+
+    historyBarRef.current.addEventListener("scroll", () => {
+      const scrollTop = historyBarRef.current?.scrollTop || 0;
+      const scrollHeight = historyBarRef.current?.scrollHeight || 0;
+      let isLoading = false;
+
+      if (scrollHeight - scrollTop < 900) {
+        console.log("Load");
+        console.log(scrollTop - scrollHeight);
+        if (!isLoading) {
+          isLoading = true;
+          fetchHistory(setHistory, loading, setLoading, 2).finally(() => {
+            isLoading = false;
+          });
+        }
+      }
+      // console.log()
+    });
+  }, []);
 
   async function handleSelection(id: string) {
     try {
@@ -155,6 +186,7 @@ export default function Home() {
         onSelectAction={handleSelection}
         isOpen={sidebarOpen}
         history={history}
+        historyBarRef={historyBarRef}
       />
     </div>
   );
