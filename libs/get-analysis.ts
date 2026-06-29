@@ -1,5 +1,6 @@
 import pool from "./db";
 import { AnalysisResponse } from "./types";
+import { cleanUrl } from "./utils-server";
 
 export default async function getSiteAnalysis(
   url: string | undefined,
@@ -71,8 +72,8 @@ export default async function getSiteAnalysis(
 
     if (aiResponse.error) {
       await pool.query(
-        `INSERT INTO analyses (url, error, is_success) VALUES($1, $2, $3)`,
-        [siteUrl, aiResponse.message, false],
+        `INSERT INTO analyses (url, error, is_success, pageContent) VALUES($1, $2, $3, $4)`,
+        [cleanUrl(siteUrl), aiResponse.message, false, siteContent],
       );
       throw new Error(aiResponse.message);
     }
