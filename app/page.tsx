@@ -26,7 +26,6 @@ export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [history, setHistory] = useState<CachedAnalysis[]>([]);
   const historyBarRef = useRef<HTMLDivElement | null>(null);
-  const isLoadingRef = useRef(false);
   const [page, setPage] = useState(1);
   const [totalHistory, setTotalHistory] = useState(0);
 
@@ -88,8 +87,10 @@ export default function Home() {
       return;
     }
 
+    let isLoading = false;
+
     function handleScroll() {
-      if (isLoadingRef.current) return;
+      if (isLoading) return;
 
       const scrollTop = historyBarRef.current?.scrollTop || 0;
       const scrollHeight = historyBarRef.current?.scrollHeight || 0;
@@ -99,7 +100,7 @@ export default function Home() {
         totalHistory &&
         history.length < totalHistory
       ) {
-        isLoadingRef.current = true;
+        isLoading = true;
         setLoading((prev) => ({ ...prev, history: true }));
         loadHistory(page + 1)
           .then((data) => {
@@ -107,7 +108,7 @@ export default function Home() {
             setPage(data?.page ?? page);
           })
           .finally(() => {
-            isLoadingRef.current = false;
+            isLoading = false;
             setLoading((prev) => ({ ...prev, history: false }));
           });
       }
