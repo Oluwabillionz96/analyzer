@@ -51,7 +51,6 @@ export async function getAnalysisById(
     const data = await response.json();
     return data as ApiResponse<AnalysisResponse>;
   } catch (error) {
-    console.log(error);
     throw error;
   }
 }
@@ -68,13 +67,13 @@ export async function getAllHistory(
     const data = await response.json();
     return data as ApiResponse<CachedAnalysis[]>;
   } catch (error) {
-    console.log(error);
     throw error;
   }
 }
 
 export async function fetchHistory(
   setHistory: Dispatch<SetStateAction<CachedAnalysis[]>>,
+  setTotalHistory: Dispatch<SetStateAction<number>>,
   loading: LoadingState,
   setLoading: Dispatch<SetStateAction<LoadingState>>,
   page = 1,
@@ -83,9 +82,19 @@ export async function fetchHistory(
   try {
     const data = await getAllHistory(page);
     setHistory(data?.data || []);
+    setTotalHistory(data?.meta?.total as number);
   } catch (error) {
     console.warn(error);
   } finally {
     setLoading({ ...loading, history: false });
   }
+}
+
+export async function loadHistory(page: number) {
+  const data = await getAllHistory(page);
+  return {
+    data: data?.data,
+    total: data?.meta?.total as number,
+    page: data?.meta?.page as number,
+  };
 }

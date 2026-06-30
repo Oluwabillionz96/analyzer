@@ -6,6 +6,7 @@ import {
   fetchHistory,
   getAllHistory,
   getAnalysisById,
+  loadHistory,
 } from "@/libs/utils";
 import { SubmitEvent, useEffect, useRef, useState } from "react";
 import AnalysisCard from "@/components/analysis-card";
@@ -25,31 +26,9 @@ export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [history, setHistory] = useState<CachedAnalysis[]>([]);
   const historyBarRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    if (!historyBarRef.current) {
-      console.log("None");
-      return;
-    }
-
-    historyBarRef.current.addEventListener("scroll", () => {
-      const scrollTop = historyBarRef.current?.scrollTop || 0;
-      const scrollHeight = historyBarRef.current?.scrollHeight || 0;
-      let isLoading = false;
-
-      if (scrollHeight - scrollTop < 900) {
-        console.log("Load");
-        console.log(scrollTop - scrollHeight);
-        if (!isLoading) {
-          isLoading = true;
-          fetchHistory(setHistory, loading, setLoading, 2).finally(() => {
-            isLoading = false;
-          });
-        }
-      }
-      // console.log()
-    });
-  }, []);
+  const isLoadingRef = useRef(false);
+  const [page, setPage] = useState(1);
+  const [totalHistory, setTotalHistory] = useState(0);
 
   async function handleSelection(id: string) {
     try {
@@ -60,7 +39,7 @@ export default function Home() {
         throw new Error(response?.error);
       }
       setAnalysis(response?.data ?? null);
-      await fetchHistory(setHistory, loading, setLoading);
+      await fetchHistory(setHistory, setTotalHistory, loading, setLoading);
 
       setError(null);
     } catch (error) {
@@ -80,7 +59,7 @@ export default function Home() {
       .then((response) => {
         setAnalysis(response?.data ?? null);
         setUrl("");
-        fetchHistory(setHistory, loading, setLoading);
+        fetchHistory(setHistory, setTotalHistory, loading, setLoading);
       })
       .catch((error) => {
         setError(error?.message ?? "Something went wrong");
@@ -96,12 +75,56 @@ export default function Home() {
 
     if (!isMounted) return;
 
-    fetchHistory(setHistory, loading, setLoading);
+    fetchHistory(setHistory, setTotalHistory, loading, setLoading);
 
     return () => {
       isMounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    if (!historyBarRef.current) {
+      console.log("None");
+      return;
+    }
+
+    function handleScroll() {
+      if (isLoadingRef.current) return;
+
+      const scrollTop = historyBarRef.current?.scrollTop || 0;
+      const scrollHeight = historyBarRef.current?.scrollHeight || 0;
+
+      if (
+        scrollHeight - scrollTop < 900 &&
+        totalHistory &&
+        history.length < totalHistory
+      ) {
+        isLoadingRef.current = true;
+        setLoading((prev) => ({ ...prev, history: true }));
+        loadHistory(page + 1)
+          .then((data) => {
+            setHistory((prev) => [...prev, ...(data.data ?? [])]);
+            setPage(data?.page ?? page);
+          })
+          .finally(() => {
+            isLoadingRef.current = false;
+            setLoading((prev) => ({ ...prev, history: false }));
+          });
+      }
+    }
+
+    const sidebar = historyBarRef.current;
+
+    if (sidebar) {
+      sidebar.addEventListener("scroll", handleScroll);
+    }
+
+    return () => {
+      if (sidebar) {
+        sidebar.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, [totalHistory, history.length, page]);
 
   return (
     <div className="flex">

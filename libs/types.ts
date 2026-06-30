@@ -2,6 +2,7 @@ export interface ApiResponse<T> {
   success: boolean;
   data?: T;
   error?: string;
+  meta?: Record<string, string | number | boolean>;
 }
 
 export interface AnalysisResponse {

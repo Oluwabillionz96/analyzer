@@ -34,7 +34,7 @@ export default function HistorySection({
       >
         <div className="space-y-4">
           <h2 className="text-lg font-semibold">People also searched:</h2>
-          {history?.length === 0 ? (
+          {!loading && history?.length === 0 ? (
             <div className="text-center py-12 text-gray-400">
               <p>No past analyses yet</p>
               <p className="text-sm">Your analyzed URLs will appear here</p>
@@ -56,7 +56,7 @@ export default function HistorySection({
           <>
             {loading && (
               <ul className="space-y-3">
-                {Array.from({ length: 4 }).map((_, i) => (
+                {Array.from({ length: 10 }).map((_, i) => (
                   <li key={i}>
                     <div className="border rounded-lg shadow-sm p-4 space-y-2 animate-pulse">
                       <div className="flex justify-between">

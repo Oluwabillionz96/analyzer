@@ -49,7 +49,6 @@ export default async function getPageContent(
     if (text.split(" ").length < 30) {
       throw new Error("Site analysis failed: content is too short");
     }
-    // console.log({ text });
     return text.slice(0, 10000);
   } catch (error) {
     throw error;
