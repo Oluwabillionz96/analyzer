@@ -1,29 +1,103 @@
 "use client";
 
-import { CachedAnalysis } from "@/libs/types";
 import HistoryCard from "./history-card";
-import { RefObject } from "react";
+import { RefObject, useEffect, useRef, useState } from "react";
+import { fetchHistory, getAnalysisById, loadHistory } from "@/libs/utils";
+import useAppContext from "@/libs/hooks/use-app-context";
 
-export default function HistorySection({
-  onSelectAction,
-  isOpen,
-  loading,
-  history = [],
-  historyBarRef,
-}: {
-  onSelectAction: (id: string) => void;
-  isOpen: boolean;
-  loading: boolean;
-  history: CachedAnalysis[];
-  historyBarRef: RefObject<HTMLDivElement | null>;
-}) {
-  // const [history, setHistory] = useState<CachedAnalysis[] | null>(null);
-  // const [error, setError] = useState<string | null>();
+export default function HistorySection({ isOpen }: { isOpen: boolean }) {
+  const {
+    state: { isLoadingHistory: loading, history, totalHistory },
+    stateSetters: {
+      setHistory,
+      setIsLoadingHistory,
+      setIsLoadingFromHistory,
+      setAnalysis,
+      setError,
+      setTotalHistory,
+    },
+  } = useAppContext();
+  const historyBarRef = useRef<HTMLDivElement>(null);
+  const [page, setPage] = useState(1);
+
+  async function handleSelection(id: string) {
+    try {
+      setIsLoadingFromHistory(true);
+      setAnalysis(null);
+      const response = await getAnalysisById(id);
+      if (!response?.success) {
+        throw new Error(response?.error);
+      }
+      setAnalysis(response?.data ?? null);
+      await fetchHistory(setHistory, setTotalHistory, setIsLoadingHistory);
+
+      setError(null);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : String(error));
+      setAnalysis(null);
+    } finally {
+      setIsLoadingFromHistory(false);
+    }
+  }
+  useEffect(() => {
+    let isMounted = true;
+
+    if (!isMounted) return;
+
+    fetchHistory(setHistory, setTotalHistory, setIsLoadingHistory);
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!historyBarRef.current) return;
+
+    let isLoading = false;
+
+    function handleScroll() {
+      if (isLoading) return;
+
+      const scrollTop = historyBarRef.current?.scrollTop || 0;
+      const scrollHeight = historyBarRef.current?.scrollHeight || 0;
+
+      if (
+        scrollHeight - scrollTop < 900 &&
+        totalHistory &&
+        history.length < totalHistory
+      ) {
+        isLoading = true;
+        setIsLoadingHistory(true);
+        loadHistory(page + 1)
+          .then((data) => {
+            setHistory((prev) => [...prev, ...(data.data ?? [])]);
+            setPage(data?.page ?? page);
+          })
+          .finally(() => {
+            isLoading = false;
+            setIsLoadingHistory(false);
+          });
+      }
+    }
+
+    const sidebar = historyBarRef.current;
+
+    if (sidebar) {
+      sidebar.addEventListener("scroll", handleScroll);
+    }
+
+    return () => {
+      if (sidebar) {
+        sidebar.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, [totalHistory, history.length, page, setHistory, setIsLoadingHistory]);
 
   return (
     <>
       {isOpen && <div className="fixed inset-0 bg-black/30 z-30 md:hidden" />}
-      <aside
+      <div
         className={
           "fixed right-0 top-0 h-screen overflow-y-auto p-4 transition-transform duration-300 z-40 w-80 md:w-80 bg-white md:border-l " +
           (isOpen
@@ -45,7 +119,7 @@ export default function HistorySection({
                 <li key={item.id}>
                   <button
                     className="text-left w-full hover:bg-gray-50 transition-colors rounded-lg"
-                    onClick={() => onSelectAction(item.id)}
+                    onClick={() => handleSelection(item.id)}
                   >
                     <HistoryCard data={item} />
                   </button>
@@ -72,7 +146,7 @@ export default function HistorySection({
             )}
           </>
         </div>
-      </aside>
+      </div>
     </>
   );
 }

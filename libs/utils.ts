@@ -74,11 +74,10 @@ export async function getAllHistory(
 export async function fetchHistory(
   setHistory: Dispatch<SetStateAction<CachedAnalysis[]>>,
   setTotalHistory: Dispatch<SetStateAction<number>>,
-  loading: LoadingState,
-  setLoading: Dispatch<SetStateAction<LoadingState>>,
+  setLoading: Dispatch<SetStateAction<boolean>>,
   page = 1,
 ) {
-  setLoading({ ...loading, history: true });
+  setLoading(true);
   try {
     const data = await getAllHistory(page);
     setHistory(data?.data || []);
@@ -86,7 +85,7 @@ export async function fetchHistory(
   } catch (error) {
     console.warn(error);
   } finally {
-    setLoading({ ...loading, history: false });
+    setLoading(false);
   }
 }
 

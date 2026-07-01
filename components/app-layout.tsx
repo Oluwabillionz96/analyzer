@@ -1,0 +1,42 @@
+"use client";
+
+import useAppContext from "@/libs/hooks/use-app-context";
+import HistorySection from "./history-section";
+import { History, PanelRightClose } from "lucide-react";
+import { ReactNode, useState } from "react";
+import { usePathname } from "next/navigation";
+
+const AppLayout = ({ children }: { children: ReactNode }) => {
+  const {
+    state: { isSidebarOpen },
+    stateSetters: { setIsSidebarOpen },
+  } = useAppContext();
+
+  const pathname = usePathname();
+
+  return (
+    <>
+      <main
+        className={"flex-1 min-w-0 " + (isSidebarOpen ? "md:pr-80" : "pr-0")}
+      >
+        {children}
+      </main>
+      {pathname === "/analysis" && (
+        <aside>
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className={
+              "fixed top-4 z-50 border rounded px-2 py-1 text-sm bg-white cursor-pointer transition-all duration-300 " +
+              (isSidebarOpen ? "right-4 md:right-84" : "right-4")
+            }
+          >
+            {isSidebarOpen ? <PanelRightClose /> : <History />}
+          </button>
+          <HistorySection isOpen={isSidebarOpen} />
+        </aside>
+      )}
+    </>
+  );
+};
+
+export default AppLayout;
