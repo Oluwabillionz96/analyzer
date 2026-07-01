@@ -1,7 +1,7 @@
 "use client";
 
 import HistoryCard from "./history-card";
-import { RefObject, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { fetchHistory, getAnalysisById, loadHistory } from "@/libs/utils";
 import useAppContext from "@/libs/hooks/use-app-context";
 
@@ -29,7 +29,6 @@ export default function HistorySection({ isOpen }: { isOpen: boolean }) {
         throw new Error(response?.error);
       }
       setAnalysis(response?.data ?? null);
-      await fetchHistory(setHistory, setTotalHistory, setIsLoadingHistory);
 
       setError(null);
     } catch (error) {
@@ -119,7 +118,14 @@ export default function HistorySection({ isOpen }: { isOpen: boolean }) {
                 <li key={item.id}>
                   <button
                     className="text-left w-full hover:bg-gray-50 transition-colors rounded-lg"
-                    onClick={() => handleSelection(item.id)}
+                    onClick={async () => {
+                      await handleSelection(item.id);
+                      await fetchHistory(
+                        setHistory,
+                        setTotalHistory,
+                        setIsLoadingHistory,
+                      );
+                    }}
                   >
                     <HistoryCard data={item} />
                   </button>

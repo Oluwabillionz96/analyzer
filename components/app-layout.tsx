@@ -3,7 +3,7 @@
 import useAppContext from "@/libs/hooks/use-app-context";
 import HistorySection from "./history-section";
 import { History, PanelRightClose } from "lucide-react";
-import { ReactNode, useState } from "react";
+import { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 
 const AppLayout = ({ children }: { children: ReactNode }) => {

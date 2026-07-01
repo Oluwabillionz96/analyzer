@@ -11,27 +11,24 @@ export default function Home() {
   const [url, setUrl] = useState("");
   const {
     state: { analysis, error, isLoadingFromHistory },
-    stateSetters: { setAnalysis, setError, setHistory, setTotalHistory },
+    stateSetters: { setAnalysis, setError, setHistory, setTotalHistory, setIsLoadingHistory },
   } = useAppContext();
 
-  function handleSubmit(e?: SubmitEvent<HTMLFormElement>) {
+  async function handleSubmit(e?: SubmitEvent<HTMLFormElement>) {
     e?.preventDefault();
     setLoading(true);
     setError(null);
     setAnalysis(null);
-    analyzeUrl(url)
-      .then((response) => {
-        setAnalysis(response?.data ?? null);
-        setUrl("");
-        fetchHistory(setHistory, setTotalHistory, setLoading);
-      })
-      .catch((error) => {
-        setError(error?.message ?? "Something went wrong");
-        setAnalysis(null);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    try {
+      const res = await analyzeUrl(url);
+      setAnalysis(res?.data ?? null);
+      setUrl("");
+    } catch (error) {
+      setError(error?.message ?? "Something went wrong");
+      setAnalysis(null);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -39,7 +36,10 @@ export default function Home() {
       <div className="space-y-8">
         <form
           className="flex flex-col md:flex-row w-full justify-center gap-4"
-          onSubmit={handleSubmit}
+          onSubmit={async (e) => {
+            await handleSubmit(e);
+            await fetchHistory(setHistory, setTotalHistory, setIsLoadingHistory);
+          }}
         >
           <input
             type="url"
