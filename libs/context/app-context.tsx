@@ -5,9 +5,11 @@ import {
   Dispatch,
   ReactNode,
   SetStateAction,
+  SubmitEvent,
   useState,
 } from "react";
 import { AnalysisResponse, CachedAnalysis } from "../types";
+import { analyzeUrl } from "../utils";
 
 const Context = createContext<{
   state: {
@@ -18,6 +20,8 @@ const Context = createContext<{
     history: CachedAnalysis[];
     isLoadingFromHistory: boolean;
     totalHistory: number;
+    url: string;
+    isLoadingAnalysis: boolean;
   };
   stateSetters: {
     setIsSidebarOpen: Dispatch<SetStateAction<boolean>>;
@@ -27,7 +31,10 @@ const Context = createContext<{
     setHistory: Dispatch<SetStateAction<CachedAnalysis[]>>;
     setIsLoadingFromHistory: Dispatch<SetStateAction<boolean>>;
     setTotalHistory: Dispatch<SetStateAction<number>>;
+    setUrl: Dispatch<SetStateAction<string>>;
+    setIsLoadingAnalysis: Dispatch<SetStateAction<boolean>>;
   };
+  handleSubmit: (e?: SubmitEvent<HTMLFormElement>) => Promise<void>;
 } | null>(null);
 
 const AppContext = ({ children }: { children: ReactNode }) => {
@@ -38,6 +45,25 @@ const AppContext = ({ children }: { children: ReactNode }) => {
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<CachedAnalysis[]>([]);
   const [totalHistory, setTotalHistory] = useState(0);
+  const [url, setUrl] = useState("");
+  const [isLoadingAnalysis, setIsLoadingAnalysis] = useState(false);
+
+  async function handleSubmit(e?: SubmitEvent<HTMLFormElement>) {
+    e?.preventDefault();
+    setIsLoadingAnalysis(true);
+    setError(null);
+    setAnalysis(null);
+    try {
+      const res = await analyzeUrl(url);
+      setAnalysis(res?.data ?? null);
+      setUrl("");
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Something went wrong");
+      setAnalysis(null);
+    } finally {
+      setIsLoadingAnalysis(false);
+    }
+  }
   return (
     <Context.Provider
       value={{
@@ -49,6 +75,8 @@ const AppContext = ({ children }: { children: ReactNode }) => {
           history,
           isLoadingFromHistory,
           totalHistory,
+          url,
+          isLoadingAnalysis
         },
         stateSetters: {
           setIsSidebarOpen,
@@ -58,7 +86,10 @@ const AppContext = ({ children }: { children: ReactNode }) => {
           setHistory,
           setIsLoadingFromHistory,
           setTotalHistory,
+          setUrl,
+          setIsLoadingAnalysis,
         },
+        handleSubmit,
       }}
     >
       {children}

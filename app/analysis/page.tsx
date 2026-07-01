@@ -7,35 +7,24 @@ import ErrorCard from "@/components/error-card";
 import useAppContext from "@/libs/hooks/use-app-context";
 
 export default function Home() {
-  const [loading, setLoading] = useState(false);
-  const [url, setUrl] = useState("");
   const {
-    state: { analysis, error, isLoadingFromHistory },
+    state: {
+      analysis,
+      error,
+      isLoadingFromHistory,
+      url,
+      isLoadingAnalysis: loading,
+    },
     stateSetters: {
       setAnalysis,
       setError,
       setHistory,
       setTotalHistory,
       setIsLoadingHistory,
+      setUrl,
     },
+    handleSubmit,
   } = useAppContext();
-
-  async function handleSubmit(e?: SubmitEvent<HTMLFormElement>) {
-    e?.preventDefault();
-    setLoading(true);
-    setError(null);
-    setAnalysis(null);
-    try {
-      const res = await analyzeUrl(url);
-      setAnalysis(res?.data ?? null);
-      setUrl("");
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "Something went wrong");
-      setAnalysis(null);
-    } finally {
-      setLoading(false);
-    }
-  }
 
   return (
     <section className="min-h-screen place-items-center grid max-w-xl mx-auto py-4 px-6 space-y-6">
