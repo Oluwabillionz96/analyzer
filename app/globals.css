@@ -1,1 +1,17 @@
 @import "tailwindcss";
+
+@theme inline {
+    --color-accent: var(--color-accent);
+    --color-accent-light: var(--color-accent-light);
+    --color-accent-mid: var(--color-accent-mid);
+}
+
+:root {
+    --color-accent: #1a1c1c;
+    --color-accent-light: #45464d;
+    --color-accent-mid: #64748b;
+}
+
+button {
+    cursor: pointer;
+}

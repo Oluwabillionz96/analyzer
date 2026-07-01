@@ -17,7 +17,10 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
   return (
     <>
       <main
-        className={"flex-1 min-w-0 " + (isSidebarOpen ? "md:pr-80" : "pr-0")}
+        className={
+          "min-w-0 px-6 py-4" +
+          (isSidebarOpen && pathname === "/analysis" ? "md:pr-80" : "pr-0")
+        }
       >
         {children}
       </main>

@@ -11,7 +11,13 @@ export default function Home() {
   const [url, setUrl] = useState("");
   const {
     state: { analysis, error, isLoadingFromHistory },
-    stateSetters: { setAnalysis, setError, setHistory, setTotalHistory, setIsLoadingHistory },
+    stateSetters: {
+      setAnalysis,
+      setError,
+      setHistory,
+      setTotalHistory,
+      setIsLoadingHistory,
+    },
   } = useAppContext();
 
   async function handleSubmit(e?: SubmitEvent<HTMLFormElement>) {
@@ -24,7 +30,7 @@ export default function Home() {
       setAnalysis(res?.data ?? null);
       setUrl("");
     } catch (error) {
-      setError(error?.message ?? "Something went wrong");
+      setError(error instanceof Error ? error.message : "Something went wrong");
       setAnalysis(null);
     } finally {
       setLoading(false);
@@ -38,7 +44,11 @@ export default function Home() {
           className="flex flex-col md:flex-row w-full justify-center gap-4"
           onSubmit={async (e) => {
             await handleSubmit(e);
-            await fetchHistory(setHistory, setTotalHistory, setIsLoadingHistory);
+            await fetchHistory(
+              setHistory,
+              setTotalHistory,
+              setIsLoadingHistory,
+            );
           }}
         >
           <input

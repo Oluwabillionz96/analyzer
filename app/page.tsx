@@ -1,10 +1,9 @@
-"use client";
-import Link from "next/link";
+import HeroSection from "@/components/hero-section";
 
 export default function Home() {
   return (
-    <div>
-      <Link href="/analysis">Analysis page</Link>
-    </div>
+    <>
+      <HeroSection />
+    </>
   );
 }
