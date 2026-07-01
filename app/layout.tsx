@@ -21,9 +21,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={` ${inter.variable}`}>
+    <html lang="en" className={` ${inter.variable} `}>
       <AppContext>
-        <body className="">
+        <body className="min-w-80 overflow-x-hidden">
           <AppLayout>{children}</AppLayout>
         </body>
       </AppContext>

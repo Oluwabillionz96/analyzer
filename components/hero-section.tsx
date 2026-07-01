@@ -2,7 +2,6 @@
 import useAppContext from "@/libs/hooks/use-app-context";
 import { ArrowRight, Link2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { SubmitEvent, useState } from "react";
 
 const HeroSection = () => {
   const {
@@ -13,10 +12,10 @@ const HeroSection = () => {
   const router = useRouter();
 
   return (
-    <section className="min-h-screen grid place-items-center ">
-      <div className="space-y-5">
+    <section className="min-h-screen grid place-items-center px-9">
+      <div className="space-y-6">
         {" "}
-        <h1 className="font-semibold text-5xl text-accent">
+        <h1 className="font-semibold md:text-5xl text-4xl  text-accent text-center">
           Deep website analysis, powered by AI
         </h1>
         <p className="text-center text-accent-light text-base">
@@ -24,13 +23,13 @@ const HeroSection = () => {
           competitors, and more.
         </p>
         <form
-          className="flex gap-4 justify-center"
+          className="flex flex-col md:flex-row gap-4 items-center justify-center"
           onSubmit={(e) => {
             router.push("/analysis");
             handleSubmit(e);
           }}
         >
-          <div className="flex-1 relative">
+          <div className="flex-4 relative w-full">
             <Link2 className="absolute bottom-4 left-3 text-accent-light" />
             <input
               type="url"
@@ -41,7 +40,7 @@ const HeroSection = () => {
               onChange={(e) => setUrl(e.target.value)}
             />
           </div>
-          <button className="flex items-center gap-2 bg-accent-mid py-4 px-8 text-sm text-white rounded-lg">
+          <button className="flex items-center gap-2 justify-center bg-accent-mid w-fit flex-1 py-4 px-8 text-sm text-white rounded-lg">
             Analyze this site <ArrowRight />{" "}
           </button>
         </form>
