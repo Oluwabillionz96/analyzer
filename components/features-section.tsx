@@ -18,48 +18,48 @@ const features: {
   {
     title: "company name",
     description:
-      "Accurate entity identification and formal branding names extracted from website text.",
+      "Identifies the company or product name from the website content.",
     icon: Building2,
     className: "md:col-span-4",
   },
   {
     title: "summary",
     description:
-      "A concise, high-level overview of the entire site's purpose, mission, andcurrent market positioning.",
+      "A brief overview of what the company does and their main value proposition.",
     icon: FileText,
     className: "md:col-span-8",
   },
   {
     title: "target customers",
-    description: "ICP profiling and demographic focus Identification.",
+    description: "Who the product or service is designed for based on the site's messaging.",
     icon: UsersRound,
     className: "md:col-span-4",
   },
   {
     title: "business model",
     description:
-      "Identification of revenue streams, pricing strategies, and value proposition mechanics.",
+      "How the company makes money—subscription, marketplace, SaaS, etc.",
     icon: CircleDollarSign,
     className: "md:col-span-4",
   },
   {
     title: "key features",
     description:
-      "Technical and functional capabilities categorizedby priority and user impact.",
+      "Main product capabilities and features highlighted on the site.",
     icon: Star,
     className: "md:col-span-4",
   },
   {
-    title: "Likely Competitors",
+    title: "likely competitors",
     description:
-      "AI-generated market landscape analysisidentifying direct and indirect competitors.",
+      "Similar products or services in the same market space.",
     icon: ArrowLeftRight,
     className: "md:col-span-6",
   },
   {
     title: "confidence note",
     description:
-      "Transparency reports on data accuracy and sourcereliability for every insight.",
+      "What the AI inferred vs. what was explicitly stated on the page.",
     icon: BadgeCheck,
     className: "md:col-span-6",
   },
@@ -72,7 +72,7 @@ const FeaturesSection = () => {
         {" "}
         <h2 className="text-3xl font-semibold text-accent">What you get</h2>
         <p className="text-accent-light text-sm">
-          The core metrics extracted from every URL.
+          Structured insights extracted from any landing page.
         </p>
       </header>
       <div className="grid gap-4 grid-cols-1 md:grid-cols-12">

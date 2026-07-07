@@ -8,26 +8,24 @@ export default function HowItWorks() {
         <h2 className="text-3xl md:text-4xl font-semibold text-[#1B1B1C] text-center">
           How it works
         </h2>
-        <p className="text-[#4a474c] text-center text-sm">
-          Three steps to clarity
-        </p>
+        <p className="text-[#4a474c] text-center text-sm">Three simple steps</p>
       </header>
       <ul className="flex flex-col gap-10 md:flex-row">
         {[
           {
             icon: Link2,
             title: "Paste URL",
-            desc: "Enter any business domain.",
+            desc: "Enter any landing page URL",
           },
           {
             icon: BrainCircuit,
             title: "AI analyzes",
-            desc: "LLM scans contents.",
+            desc: "AI extracts and structures the content",
           },
           {
             icon: ChartNetwork,
-            title: "Get Insight",
-            desc: "Structured data delivered",
+            title: "Get insights",
+            desc: "View organized business intelligence",
           },
         ].map((item, index) => {
           const Icon = item.icon;

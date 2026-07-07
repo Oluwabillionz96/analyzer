@@ -16,11 +16,10 @@ const HeroSection = () => {
       <div className="space-y-6">
         {" "}
         <h1 className="font-semibold md:text-5xl text-4xl  text-accent text-center">
-          Deep website analysis, powered by AI
+          Analyze any landing page with AI
         </h1>
         <p className="text-center text-accent-light text-base">
-          Paste any URL to get instant, structured insights on business model,
-          competitors, and more.
+          Extract company info, business model, key features, and competitors from any website—instantly.
         </p>
         <form
           className="flex flex-col md:flex-row gap-4 items-center justify-center"

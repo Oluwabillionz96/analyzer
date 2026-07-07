@@ -1,3 +1,4 @@
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 export default function Footer() {
@@ -9,9 +10,10 @@ export default function Footer() {
         </h2>
         <Link
           href={"/analysis"}
-          className="py-4 bg-[#6B7280] px-10 rounded-lg m-auto w-fit block text-white text-sm uppercase"
+          className="py-4 flex gap-4 bg-[#6B7280] px-10 rounded-lg m-auto w-fit items-center group  text-white text-sm uppercase"
         >
           Launch Analyzer
+          <ArrowRight className="group-hover:translate-x-2 transition duration-500 ease-in-out" />
         </Link>
       </div>
     </footer>
