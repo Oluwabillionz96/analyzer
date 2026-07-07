@@ -9,7 +9,7 @@ export default function HowItWorks() {
           How it works
         </h2>
         <p className="text-[#4a474c] text-center text-sm">
-          There steps to clarity
+          Three steps to clarity
         </p>
       </header>
       <ul className="flex flex-col gap-10 md:flex-row">

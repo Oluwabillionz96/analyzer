@@ -5,6 +5,7 @@ import HistorySection from "./history-section";
 import { History, PanelRightClose } from "lucide-react";
 import { ReactNode } from "react";
 import { usePathname } from "next/navigation";
+import Footer from "./footer";
 
 const AppLayout = ({ children }: { children: ReactNode }) => {
   const {
@@ -38,6 +39,7 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
           <HistorySection isOpen={isSidebarOpen} />
         </aside>
       )}
+      {pathname === "/" && <Footer />}
     </>
   );
 };
