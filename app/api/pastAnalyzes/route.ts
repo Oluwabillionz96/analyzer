@@ -1,5 +1,5 @@
 import pool from "@/libs/db";
-import { updateSearchcount } from "@/libs/db-utils";
+import { updateSearchCountAndLastUpdated } from "@/libs/db-utils";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function PATCH(req: NextRequest) {
@@ -17,7 +17,7 @@ export async function PATCH(req: NextRequest) {
     );
 
     try {
-      await updateSearchcount(id);
+      await updateSearchCountAndLastUpdated(id);
     } catch (error) {
       throw error;
     }

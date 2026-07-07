@@ -7,7 +7,7 @@ import {
   addToDB,
   getFromDB,
   updateCache,
-  updateSearchcount,
+  updateSearchCountAndLastUpdated,
 } from "@/libs/db-utils";
 
 async function analyze(url: string) {
@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
         try {
           await Promise.all([
             updateCache(siteAnalysis, id),
-            updateSearchcount(id),
+            updateSearchCountAndLastUpdated(id),
           ]);
         } catch (error) {
           console.warn({ error });
@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
       }
 
       try {
-        await updateSearchcount(id);
+        await updateSearchCountAndLastUpdated(id);
       } catch (error) {
         console.warn({ error });
       }
