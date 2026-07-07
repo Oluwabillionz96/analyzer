@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from "react";
-import { AnalysisResponse, ApiResponse, CachedAnalysis } from "./types";
+import { AnalysisResponse, ApiResponse, CachedAnalysis, SORTVALUES } from "./types";
 
 type LoadingState = {
   analysis: boolean;
@@ -57,9 +57,20 @@ export async function getAnalysisById(
 
 export async function getAllHistory(
   page: number,
+  selectedSort: SORTVALUES,
 ): Promise<ApiResponse<CachedAnalysis[]>> {
   try {
-    const response = await fetch(`/api/history?page=${page}`);
+    const order =
+      selectedSort === "oldest"
+        ? "direction=ASC"
+        : selectedSort === "most-searched"
+          ? "field=searchcount"
+          : selectedSort === "least-searched"
+            ? "field=searchcount&direction=ASC"
+            : "";
+    const response = await fetch(
+      `/api/history?page=${page}&limit=20${order ? `&${order}` : ""}`,
+    );
     if (!response.ok) {
       const body = await response.json();
       throw new Error(body.error ?? body.message ?? `HTTP ${response.status}`);
@@ -75,11 +86,12 @@ export async function fetchHistory(
   setHistory: Dispatch<SetStateAction<CachedAnalysis[]>>,
   setTotalHistory: Dispatch<SetStateAction<number>>,
   setLoading: Dispatch<SetStateAction<boolean>>,
+  selectedSort: SORTVALUES,
   page = 1,
 ) {
   setLoading(true);
   try {
-    const data = await getAllHistory(page);
+    const data = await getAllHistory(page, selectedSort);
     setHistory(data?.data || []);
     setTotalHistory(data?.meta?.total as number);
   } catch (error) {
@@ -89,8 +101,11 @@ export async function fetchHistory(
   }
 }
 
-export async function loadHistory(page: number) {
-  const data = await getAllHistory(page);
+export async function loadHistory(
+  page: number,
+  selectedSort: SORTVALUES,
+) {
+  const data = await getAllHistory(page, selectedSort);
   return {
     data: data?.data,
     total: data?.meta?.total as number,

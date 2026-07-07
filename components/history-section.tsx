@@ -4,6 +4,15 @@ import HistoryCard from "./history-card";
 import { useEffect, useRef, useState } from "react";
 import { fetchHistory, getAnalysisById, loadHistory } from "@/libs/utils";
 import useAppContext from "@/libs/hooks/use-app-context";
+import { ChevronDown } from "lucide-react";
+import { SORTVALUES } from "@/libs/types";
+
+const SORT_OPTIONS: { label: string; value: SORTVALUES }[] = [
+  { label: "Most Recent", value: "most-recent" },
+  { label: "Oldest", value: "oldest" },
+  { label: "Most Searched", value: "most-searched" },
+  { label: "Least Searched", value: "least-searched" },
+];
 
 export default function HistorySection({ isOpen }: { isOpen: boolean }) {
   const {
@@ -19,6 +28,11 @@ export default function HistorySection({ isOpen }: { isOpen: boolean }) {
   } = useAppContext();
   const historyBarRef = useRef<HTMLDivElement>(null);
   const [page, setPage] = useState(1);
+  const [selectedSort, setSelectedSort] = useState<{
+    label: string;
+    value: SORTVALUES;
+  }>(SORT_OPTIONS[0]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   async function handleSelection(id: string) {
     try {
@@ -43,12 +57,17 @@ export default function HistorySection({ isOpen }: { isOpen: boolean }) {
 
     if (!isMounted) return;
 
-    fetchHistory(setHistory, setTotalHistory, setIsLoadingHistory);
+    fetchHistory(
+      setHistory,
+      setTotalHistory,
+      setIsLoadingHistory,
+      selectedSort.value,
+    );
 
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [selectedSort.value]);
 
   useEffect(() => {
     if (!historyBarRef.current) return;
@@ -68,7 +87,7 @@ export default function HistorySection({ isOpen }: { isOpen: boolean }) {
       ) {
         isLoading = true;
         setIsLoadingHistory(true);
-        loadHistory(page + 1)
+        loadHistory(page + 1, selectedSort.value)
           .then((data) => {
             setHistory((prev) => [...prev, ...(data.data ?? [])]);
             setPage(data?.page ?? page);
@@ -91,7 +110,14 @@ export default function HistorySection({ isOpen }: { isOpen: boolean }) {
         sidebar.removeEventListener("scroll", handleScroll);
       }
     };
-  }, [totalHistory, history.length, page, setHistory, setIsLoadingHistory]);
+  }, [
+    totalHistory,
+    history.length,
+    page,
+    setHistory,
+    setIsLoadingHistory,
+    selectedSort.value,
+  ]);
 
   return (
     <>
@@ -106,7 +132,44 @@ export default function HistorySection({ isOpen }: { isOpen: boolean }) {
         ref={historyBarRef}
       >
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold">People also searched:</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold">People also searched:</h2>
+          </div>
+
+          {/* Filter Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="w-full flex items-center justify-between px-3 py-2 text-sm border border-[#C6C6CD] rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <span className="text-accent">{selectedSort.label}</span>
+              <ChevronDown
+                size={16}
+                className={`text-accent-light transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
+              />
+            </button>
+            {isDropdownOpen && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-[#C6C6CD] rounded-lg shadow-lg z-50 overflow-hidden">
+                {SORT_OPTIONS.map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => {
+                      setSelectedSort(option);
+                      setIsDropdownOpen(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 transition-colors ${
+                      selectedSort.value === option.value
+                        ? "bg-gray-100 text-accent font-medium"
+                        : "text-accent"
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
           {!loading && history?.length === 0 ? (
             <div className="text-center py-12 text-gray-400">
               <p>No past analyses yet</p>
@@ -124,6 +187,8 @@ export default function HistorySection({ isOpen }: { isOpen: boolean }) {
                         setHistory,
                         setTotalHistory,
                         setIsLoadingHistory,
+                        selectedSort.value,
+                        page,
                       );
                     }}
                   >

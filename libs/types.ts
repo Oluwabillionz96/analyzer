@@ -24,3 +24,5 @@ export interface CachedAnalysis extends AnalysisResponse {
   is_success: boolean;
   error?: string;
 }
+
+export type SORTVALUES = "most-recent" | "oldest" | "most-searched" | "least-searched";
