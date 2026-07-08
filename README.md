@@ -13,8 +13,12 @@ Analysator is a tool that acts as a landing page's analyst. It takes in a URL an
 - Takes in a url and returns a structured output
 - Extracts company name, summary, business model, target market and likely competitors based on the pages content
 - Confidence note on what the AI implied or was unsure about
+- Quick-start example URLs populated from most searched sites
+- History sidebar with sortable filters (most recent, oldest, most searched, least searched)
+- Skeleton loading states for smooth user experience
 
 ## Tech Stack
+
 - Next.js 16
 - React 19
 - TypeScript
@@ -38,34 +42,57 @@ Analysator is a tool that acts as a landing page's analyst. It takes in a URL an
 
 ## Environment Variables
 
-Variable | Description
--------- | -----------
-`BROWSERLESS_API_KEY` | Your Browserless API key
-`BROWSERLESS_URL` | Browserless API request URL
-`GROQ_API_KEY` | Your Groq API key
-`GROQ_REQUEST_URL` | Groq inference endpoint
+| Variable              | Description                 |
+| --------------------- | --------------------------- |
+| `BROWSERLESS_API_KEY` | Your Browserless API key    |
+| `BROWSERLESS_URL`     | Browserless API request URL |
+| `GROQ_API_KEY`        | Your Groq API key           |
+| `GROQ_REQUEST_URL`    | Groq inference endpoint     |
+| `DATABASE_URL`        | Your POSTGRES database url  |
 
 ## How it works
 
-1. User submits URL via POST request to `/api/analyze`
+1. User submits URL via POST request to `/api/analyze` (or clicks a suggested URL from the hero section)
 2. Server fetches page's content via Browserless, strips unwanted elements (e.g footer, nav, etc) and parses HTML with Cheerio.
 3. Sends cleaned text to Groq with a structured system prompt
 4. Parses Groq's JSON response -> returns structured analysis to client
+5. Analysis is cached in PostgreSQL and becomes available in the searchable history sidebar
 
 ## Project Structure
 
+```
 app/
-    page.tsx           - main UI
-    api/
-        analyze/
-           route.ts     - POST handler for analysis requests
+  page.tsx              - main landing page UI with hero, features, and how-it-works sections
+  analysis/
+    page.tsx            - analysis results page
+  api/
+    analyze/
+      route.ts          - POST handler for analysis requests
+    history/
+      route.ts          - GET handler for fetching sorted/paginated history
+    pastAnalyzes/
+      route.ts          - GET handler for retrieving specific analysis by ID
 components/
-    analysis-card.tsx  - result display
-    error-card.tsx     - error display
+  hero-section.tsx      - hero with input form and dynamic example URLs
+  features-section.tsx  - "What you get" feature grid
+  how-it-works.tsx      - three-step process explanation
+  history-section.tsx   - sortable sidebar with past analyses
+  analysis-card.tsx     - result display
+  error-card.tsx        - error display
+  history-card.tsx      - individual history item display
+  app-layout.tsx        - main layout wrapper
+  footer.tsx            - footer component
 libs/
-    utils.ts          - client-side utility functions
-    utils-server.ts   - server-side utility functions
-    types.ts          - shared type definitions
+  db.ts                 - PostgreSQL connection pool
+  db-utils.ts           - database query helpers
+  utils.ts              - client-side utility functions
+  utils-server.ts       - server-side utility functions
+  types.ts              - shared type definitions
+  context/
+    app-context.tsx     - global state management
+  hooks/
+    use-app-context.ts  - context hook
+```
 
 ## Limitations
 

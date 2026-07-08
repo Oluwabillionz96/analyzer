@@ -29,11 +29,11 @@ const HeroSection = () => {
   }, [setError]);
 
   const handleExampleClick = (exampleUrl: string) => {
-    setUrl(exampleUrl);
+    setUrl(decodeURIComponent(exampleUrl));
   };
 
   return (
-    <section className="min-h-screen grid place-items-center px-9">
+    <section className="min-h-screen grid place-items-center px-9 py-6">
       <div className="space-y-6">
         {" "}
         <h1 className="font-semibold md:text-5xl text-4xl  text-accent text-center">
@@ -66,7 +66,7 @@ const HeroSection = () => {
           </button>
         </form>
         <div className="flex flex-col items-center gap-3">
-          <p className="text-accent-light text-sm">Try these URLs:</p>
+          <p className="text-accent-light text-sm">Try these websites:</p>
           {loading ? (
             <div className="flex flex-wrap gap-2 justify-center">
               {Array.from({ length: 5 }, (_, i) => (

@@ -5,7 +5,7 @@ import AnalysisCard from "@/components/analysis-card";
 import ErrorCard from "@/components/error-card";
 import useAppContext from "@/libs/hooks/use-app-context";
 
-export default function Home() {
+export default function Analysis() {
   const {
     state: {
       analysis,
