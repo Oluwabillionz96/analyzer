@@ -1,11 +1,10 @@
 import { Dispatch, SetStateAction } from "react";
-import { AnalysisResponse, ApiResponse, CachedAnalysis, SORTVALUES } from "./types";
-
-type LoadingState = {
-  analysis: boolean;
-  history: boolean;
-  fromHistory: boolean;
-};
+import {
+  AnalysisResponse,
+  ApiResponse,
+  CachedAnalysis,
+  SORTVALUES,
+} from "./types";
 
 export async function analyzeUrl(
   url: string,
@@ -58,6 +57,7 @@ export async function getAnalysisById(
 export async function getAllHistory(
   page: number,
   selectedSort: SORTVALUES,
+  limit = 20,
 ): Promise<ApiResponse<CachedAnalysis[]>> {
   try {
     const order =
@@ -69,7 +69,7 @@ export async function getAllHistory(
             ? "field=searchcount&direction=ASC"
             : "";
     const response = await fetch(
-      `/api/history?page=${page}&limit=20${order ? `&${order}` : ""}`,
+      `/api/history?page=${page}&limit=${limit}${order ? `&${order}` : ""}`,
     );
     if (!response.ok) {
       const body = await response.json();
@@ -104,11 +104,19 @@ export async function fetchHistory(
 export async function loadHistory(
   page: number,
   selectedSort: SORTVALUES,
+  limit?: number,
 ) {
-  const data = await getAllHistory(page, selectedSort);
+  const data = await getAllHistory(page, selectedSort, limit);
   return {
     data: data?.data,
     total: data?.meta?.total as number,
     page: data?.meta?.page as number,
   };
 }
+
+export const SORT_OPTIONS: { label: string; value: SORTVALUES }[] = [
+  { label: "Most Recent", value: "most-recent" },
+  { label: "Oldest", value: "oldest" },
+  { label: "Most Searched", value: "most-searched" },
+  { label: "Least Searched", value: "least-searched" },
+];

@@ -2,17 +2,14 @@
 
 import HistoryCard from "./history-card";
 import { useEffect, useRef, useState } from "react";
-import { fetchHistory, getAnalysisById, loadHistory } from "@/libs/utils";
+import {
+  fetchHistory,
+  getAnalysisById,
+  loadHistory,
+  SORT_OPTIONS,
+} from "@/libs/utils";
 import useAppContext from "@/libs/hooks/use-app-context";
 import { ChevronDown } from "lucide-react";
-import { SORTVALUES } from "@/libs/types";
-
-const SORT_OPTIONS: { label: string; value: SORTVALUES }[] = [
-  { label: "Most Recent", value: "most-recent" },
-  { label: "Oldest", value: "oldest" },
-  { label: "Most Searched", value: "most-searched" },
-  { label: "Least Searched", value: "least-searched" },
-];
 
 export default function HistorySection({ isOpen }: { isOpen: boolean }) {
   const {
@@ -28,11 +25,12 @@ export default function HistorySection({ isOpen }: { isOpen: boolean }) {
   } = useAppContext();
   const historyBarRef = useRef<HTMLDivElement>(null);
   const [page, setPage] = useState(1);
-  const [selectedSort, setSelectedSort] = useState<{
-    label: string;
-    value: SORTVALUES;
-  }>(SORT_OPTIONS[0]);
+
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const {
+    state: { selectedSort },
+    stateSetters: { setSelectedSort },
+  } = useAppContext();
 
   async function handleSelection(id: string) {
     try {
@@ -67,7 +65,7 @@ export default function HistorySection({ isOpen }: { isOpen: boolean }) {
     return () => {
       isMounted = false;
     };
-  }, [selectedSort.value]);
+  }, [selectedSort.value, setHistory, setIsLoadingHistory, setTotalHistory]);
 
   useEffect(() => {
     if (!historyBarRef.current) return;

@@ -8,8 +8,8 @@ import {
   SubmitEvent,
   useState,
 } from "react";
-import { AnalysisResponse, CachedAnalysis } from "../types";
-import { analyzeUrl } from "../utils";
+import { AnalysisResponse, CachedAnalysis, SORTVALUES } from "../types";
+import { analyzeUrl, SORT_OPTIONS } from "../utils";
 
 const Context = createContext<{
   state: {
@@ -22,6 +22,7 @@ const Context = createContext<{
     totalHistory: number;
     url: string;
     isLoadingAnalysis: boolean;
+    selectedSort: { label: string; value: SORTVALUES };
   };
   stateSetters: {
     setIsSidebarOpen: Dispatch<SetStateAction<boolean>>;
@@ -33,6 +34,9 @@ const Context = createContext<{
     setTotalHistory: Dispatch<SetStateAction<number>>;
     setUrl: Dispatch<SetStateAction<string>>;
     setIsLoadingAnalysis: Dispatch<SetStateAction<boolean>>;
+    setSelectedSort: Dispatch<
+      SetStateAction<{ label: string; value: SORTVALUES }>
+    >;
   };
   handleSubmit: (e?: SubmitEvent<HTMLFormElement>) => Promise<void>;
 } | null>(null);
@@ -47,6 +51,10 @@ const AppContext = ({ children }: { children: ReactNode }) => {
   const [totalHistory, setTotalHistory] = useState(0);
   const [url, setUrl] = useState("");
   const [isLoadingAnalysis, setIsLoadingAnalysis] = useState(false);
+  const [selectedSort, setSelectedSort] = useState<{
+    label: string;
+    value: SORTVALUES;
+  }>(SORT_OPTIONS[0]);
 
   async function handleSubmit(e?: SubmitEvent<HTMLFormElement>) {
     e?.preventDefault();
@@ -76,7 +84,8 @@ const AppContext = ({ children }: { children: ReactNode }) => {
           isLoadingFromHistory,
           totalHistory,
           url,
-          isLoadingAnalysis
+          isLoadingAnalysis,
+          selectedSort,
         },
         stateSetters: {
           setIsSidebarOpen,
@@ -88,6 +97,7 @@ const AppContext = ({ children }: { children: ReactNode }) => {
           setTotalHistory,
           setUrl,
           setIsLoadingAnalysis,
+          setSelectedSort,
         },
         handleSubmit,
       }}

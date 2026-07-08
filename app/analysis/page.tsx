@@ -1,7 +1,6 @@
 "use client";
 
-import { analyzeUrl, fetchHistory } from "@/libs/utils";
-import { SubmitEvent, useState } from "react";
+import { fetchHistory } from "@/libs/utils";
 import AnalysisCard from "@/components/analysis-card";
 import ErrorCard from "@/components/error-card";
 import useAppContext from "@/libs/hooks/use-app-context";
@@ -14,6 +13,7 @@ export default function Home() {
       isLoadingFromHistory,
       url,
       isLoadingAnalysis: loading,
+      selectedSort: { value: sortValue },
     },
     stateSetters: {
       setAnalysis,
@@ -37,6 +37,7 @@ export default function Home() {
               setHistory,
               setTotalHistory,
               setIsLoadingHistory,
+              sortValue,
             );
           }}
         >
