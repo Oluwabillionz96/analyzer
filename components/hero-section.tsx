@@ -21,7 +21,11 @@ const HeroSection = () => {
         const urls = history?.data?.map((item) => item.url);
         setTopUrls(urls || []);
       })
-      .catch((error) => setError(error))
+      .catch((error) =>
+        setError(
+          error instanceof Error ? error.message : "Failed to load examples",
+        ),
+      )
       .finally(() => setLoading(false));
   }, [setError]);
 
@@ -56,6 +60,7 @@ const HeroSection = () => {
               className="w-full text-base py-3.5 pr-4 pl-12 border border-[#C6C6CD] rounded-lg focus:outline-[#C6C6CD] color-accent"
               required
               value={url}
+              aria-label="Website URL to analyze"
               onChange={(e) => setUrl(e.target.value)}
             />
           </div>

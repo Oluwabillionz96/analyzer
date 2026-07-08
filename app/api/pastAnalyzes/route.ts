@@ -16,6 +16,13 @@ export async function PATCH(req: NextRequest) {
       [id],
     );
 
+    if (!result.rows[0]) {
+      return NextResponse.json(
+        { error: "Analysis not found", success: false },
+        { status: 404 },
+      );
+    }
+
     try {
       await updateSearchCountAndLastUpdated(id);
     } catch (error) {
