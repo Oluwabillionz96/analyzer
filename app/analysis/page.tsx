@@ -4,8 +4,6 @@ import { fetchHistory } from "@/libs/utils";
 import AnalysisCard from "@/components/analysis-card";
 import ErrorCard from "@/components/error-card";
 import useAppContext from "@/libs/hooks/use-app-context";
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
 
 export default function Analysis() {
   const {
