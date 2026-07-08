@@ -76,12 +76,15 @@ export async function POST(req: NextRequest) {
       let siteAnalysis: AnalysisResponse = analysis;
 
       if (!is_success) {
-        return NextResponse.json({ success: is_success, error });
+        return NextResponse.json(
+          { success: is_success, error },
+          { status: 400 },
+        );
       }
 
       if (isThreeDaysOld(updated_at)) {
-        siteAnalysis = await analyze(url);
         try {
+          siteAnalysis = await analyze(url);
           await Promise.all([
             updateCache(siteAnalysis, id),
             updateSearchCountAndLastUpdated(id),

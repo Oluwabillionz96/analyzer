@@ -7,7 +7,7 @@ export async function PATCH(req: NextRequest) {
     const { id } = await req.json();
     if (!id) {
       return NextResponse.json(
-        { error: "id is required", sucess: false },
+        { error: "id is required", success: false },
         { status: 400 },
       );
     }
