@@ -4,18 +4,21 @@ Analysator is a tool that acts as a landing page's analyst. It takes in a URL an
 
 ## Screenshots
 
-![Screenshot](https://raw.githubusercontent.com/oluwabillionz96/analyzer/main/public/analysator1.webp)
-![Loading skeleton](https://raw.githubusercontent.com/oluwabillionz96/analyzer/main/public/analysator-loading.webp)
-![Analysis result](https://raw.githubusercontent.com/oluwabillionz96/analyzer/main/public/analysator-result.webp)
+![Screenshot](https://raw.githubusercontent.com/oluwabillionz96/analyzer/main/public/analysator.webp)
+![Loading skeleton](https://raw.githubusercontent.com/oluwabillionz96/analyzer/main/public/analysator-loading-v2.webp)
+![Analysis result](https://raw.githubusercontent.com/oluwabillionz96/analyzer/main/public/analysator-result-v2.webp)
 
 ## Features
 
-- Takes in a url and returns a structured output
+- Analyzes landing pages and extracts structured business intelligence
 - Extracts company name, summary, business model, target market and likely competitors based on the pages content
-- Confidence note on what the AI implied or was unsure about
-- Quick-start example URLs populated from most searched sites
-- History sidebar with sortable filters (most recent, oldest, most searched, least searched)
+- AI confidence notes on inferred vs. explicitly stated information
+- Dynamic example URLs populated from most searched sites in the database
+- Persistent history sidebar with sortable filters (most recent, oldest, most searched, least searched)
+- Responsive design with mobile-optimized sidebar behavior
 - Skeleton loading states for smooth user experience
+- Navigation between home and analysis pages
+- Cached results in PostgreSQL to avoid redundant API calls
 
 ## Tech Stack
 
@@ -23,6 +26,7 @@ Analysator is a tool that acts as a landing page's analyst. It takes in a URL an
 - React 19
 - TypeScript
 - Tailwind CSS v4
+- PostgreSQL (database)
 - Browserless (headless content fetching)
 - Cheerio (HTML parsing)
 - Groq API (AI inference)
@@ -30,6 +34,7 @@ Analysator is a tool that acts as a landing page's analyst. It takes in a URL an
 ## Prerequisites
 
 - Node.js 20+
+- PostgreSQL database
 - A Browserless API key + request URL
 - A Groq API key + request URL
 
@@ -37,8 +42,35 @@ Analysator is a tool that acts as a landing page's analyst. It takes in a URL an
 
 1. Clone the repository
 2. Install dependencies: `npm install`
-3. Set up environment variables: `cp example.env .env.local` and update with your API keys
-4. Run the development server: `npm run dev`
+3. Set up your PostgreSQL database and create the required tables (see Database Schema below)
+4. Set up environment variables: `cp example.env .env.local` and update with your API keys and database URL
+5. Run the development server: `npm run dev`
+
+## Database Schema
+
+You'll need to create a PostgreSQL table with the following structure:
+
+```sql
+CREATE TABLE analyses (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  url TEXT NOT NULL,
+  "companyName" TEXT,
+  summary TEXT,
+  "targetCustomers" JSONB,
+  "businessModel" TEXT,
+  "keyFeatures" JSONB,
+  "likelyCompetitors" JSONB,
+  "confidenceNotes" TEXT,
+  searchcount INTEGER DEFAULT 1,
+  is_success BOOLEAN DEFAULT true,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX idx_analyses_url ON analyses(url);
+CREATE INDEX idx_analyses_searchcount ON analyses(searchcount);
+CREATE INDEX idx_analyses_updated_at ON analyses(updated_at);
+```
 
 ## Environment Variables
 
@@ -60,11 +92,11 @@ Analysator is a tool that acts as a landing page's analyst. It takes in a URL an
 
 ## Project Structure
 
-```
+```txt
 app/
   page.tsx              - main landing page UI with hero, features, and how-it-works sections
   analysis/
-    page.tsx            - analysis results page
+    page.tsx            - analysis results page with back-to-home navigation
   api/
     analyze/
       route.ts          - POST handler for analysis requests
@@ -92,6 +124,7 @@ libs/
     app-context.tsx     - global state management
   hooks/
     use-app-context.ts  - context hook
+    use-is-mobile.ts    - responsive design hook
 ```
 
 ## Limitations

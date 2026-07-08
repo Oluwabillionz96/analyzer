@@ -62,7 +62,10 @@ const HeroSection = () => {
               onChange={(e) => setUrl(e.target.value)}
             />
           </div>
-          <button className="flex whitespace-nowrap items-center gap-2 justify-center bg-accent-mid w-fit flex-1 py-4 px-8 text-sm text-white rounded-lg">
+          <button
+            className="flex whitespace-nowrap disabled:opacity-50 items-center gap-2 justify-center bg-accent-mid w-fit flex-1 py-4 px-8 text-sm text-white rounded-lg"
+            disabled={!url}
+          >
             Analyze this site <ArrowRight />{" "}
           </button>
         </form>
