@@ -59,14 +59,6 @@ const AppContext = ({ children }: { children: ReactNode }) => {
     value: SORTVALUES;
   }>(SORT_OPTIONS[0]);
 
-  useEffect(() => {
-    function handleResize() {
-      setIsSidebarOpen(isMobile ? false : true);
-    }
-
-    handleResize();
-  }, [isMobile]);
-
   async function handleSubmit(e?: SubmitEvent<HTMLFormElement>) {
     e?.preventDefault();
     setIsLoadingAnalysis(true);

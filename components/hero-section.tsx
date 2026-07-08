@@ -9,12 +9,9 @@ const HeroSection = () => {
   const {
     handleSubmit,
     state: { url },
-    stateSetters: { setUrl },
+    stateSetters: { setUrl, setError },
   } = useAppContext();
   const router = useRouter();
-  const {
-    stateSetters: { setError },
-  } = useAppContext();
   const [topUrls, setTopUrls] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 

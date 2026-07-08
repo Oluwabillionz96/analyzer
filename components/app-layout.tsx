@@ -39,7 +39,7 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
       {pathname === "/analysis" && (
         <aside>
           <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            onClick={() => setIsSidebarOpen((prev) => !prev)}
             className={
               "fixed top-4 z-50 border rounded px-2 py-1 text-sm bg-white cursor-pointer transition-all duration-300 " +
               (isSidebarOpen ? "right-4 md:right-84" : "right-4")

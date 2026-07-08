@@ -51,20 +51,12 @@ export default function HistorySection({ isOpen }: { isOpen: boolean }) {
     }
   }
   useEffect(() => {
-    let isMounted = true;
-
-    if (!isMounted) return;
-
     fetchHistory(
       setHistory,
       setTotalHistory,
       setIsLoadingHistory,
       selectedSort.value,
     );
-
-    return () => {
-      isMounted = false;
-    };
   }, [selectedSort.value, setHistory, setIsLoadingHistory, setTotalHistory]);
 
   useEffect(() => {
