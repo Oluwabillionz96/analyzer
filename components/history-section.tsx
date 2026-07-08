@@ -82,6 +82,9 @@ export default function HistorySection({ isOpen }: { isOpen: boolean }) {
             setHistory((prev) => [...prev, ...(data.data ?? [])]);
             setPage(data?.page ?? page);
           })
+          .catch((error) => {
+            console.warn("Failed to load more history:", error);
+          })
           .finally(() => {
             isLoading = false;
             setIsLoadingHistory(false);
