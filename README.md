@@ -64,7 +64,9 @@ CREATE TABLE analyses (
   searchcount INTEGER DEFAULT 1,
   is_success BOOLEAN DEFAULT true,
   created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
+  updated_at TIMESTAMP DEFAULT NOW(),
+  error TEXT,
+  pagecontent TEXT,
 );
 
 CREATE INDEX idx_analyses_url ON analyses(url);

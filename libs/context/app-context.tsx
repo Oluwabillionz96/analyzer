@@ -6,7 +6,6 @@ import {
   ReactNode,
   SetStateAction,
   SubmitEvent,
-  useEffect,
   useState,
 } from "react";
 import { AnalysisResponse, CachedAnalysis, SORTVALUES } from "../types";

@@ -46,7 +46,7 @@ export default async function getPageContent(
     ).remove();
     const text = $("body").text().trim();
 
-    if (text.split(" ").length < 30) {
+    if (text.split(/\s+/).filter(Boolean).length < 30) {
       throw new Error("Site analysis failed: content is too short");
     }
     return text.slice(0, 10000);

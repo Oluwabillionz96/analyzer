@@ -93,7 +93,7 @@ export async function fetchHistory(
   try {
     const data = await getAllHistory(page, selectedSort);
     setHistory(data?.data || []);
-    setTotalHistory(data?.meta?.total as number);
+    setTotalHistory(Number(data?.meta?.total ?? 0));
   } catch (error) {
     console.warn(error);
   } finally {
@@ -109,8 +109,8 @@ export async function loadHistory(
   const data = await getAllHistory(page, selectedSort, limit);
   return {
     data: data?.data,
-    total: data?.meta?.total as number,
-    page: data?.meta?.page as number,
+    total: Number(data?.meta?.total ?? 0),
+    page: Number(data?.meta?.page ?? 0),
   };
 }
 
