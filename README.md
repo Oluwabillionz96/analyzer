@@ -82,7 +82,7 @@ CREATE INDEX idx_analyses_updated_at ON analyses(updated_at);
 | `BROWSERLESS_URL`     | Browserless API request URL |
 | `GROQ_API_KEY`        | Your Groq API key           |
 | `GROQ_REQUEST_URL`    | Groq inference endpoint     |
-| `DATABASE_URL`        | Your POSTGRES database url  |
+| `DATABASE_CONNECTION_STRING`        | Your POSTGRES database url  |
 
 ## How it works
 
