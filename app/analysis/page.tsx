@@ -31,13 +31,6 @@ export default function Analysis() {
   return (
     <section className="min-h-screen place-items-center grid max-w-xl mx-auto py-4 px-6 space-y-6">
       <div className="space-y-8 w-full">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-accent-mid hover:text-accent transition-colors text-sm"
-        >
-          <ArrowLeft size={16} />
-          Back to home
-        </Link>
         <form
           className="flex flex-col md:flex-row w-full justify-center gap-4"
           onSubmit={async (e) => {

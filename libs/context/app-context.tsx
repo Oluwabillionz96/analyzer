@@ -6,10 +6,12 @@ import {
   ReactNode,
   SetStateAction,
   SubmitEvent,
+  useEffect,
   useState,
 } from "react";
 import { AnalysisResponse, CachedAnalysis, SORTVALUES } from "../types";
 import { analyzeUrl, SORT_OPTIONS } from "../utils";
+import useIsMobile from "../hooks/use-is-mobile";
 
 const Context = createContext<{
   state: {
@@ -42,7 +44,8 @@ const Context = createContext<{
 } | null>(null);
 
 const AppContext = ({ children }: { children: ReactNode }) => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const isMobile = useIsMobile();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(isMobile ? false : true);
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const [isLoadingFromHistory, setIsLoadingFromHistory] = useState(false);
   const [analysis, setAnalysis] = useState<AnalysisResponse | null>(null);
@@ -55,6 +58,14 @@ const AppContext = ({ children }: { children: ReactNode }) => {
     label: string;
     value: SORTVALUES;
   }>(SORT_OPTIONS[0]);
+
+  useEffect(() => {
+    function handleResize() {
+      setIsSidebarOpen(isMobile ? false : true);
+    }
+
+    handleResize();
+  }, [isMobile]);
 
   async function handleSubmit(e?: SubmitEvent<HTMLFormElement>) {
     e?.preventDefault();

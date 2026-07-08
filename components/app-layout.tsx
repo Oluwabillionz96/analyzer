@@ -2,10 +2,11 @@
 
 import useAppContext from "@/libs/hooks/use-app-context";
 import HistorySection from "./history-section";
-import { History, PanelRightClose } from "lucide-react";
+import { ArrowLeft, History, PanelRightClose } from "lucide-react";
 import { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import Footer from "./footer";
+import Link from "next/link";
 
 const AppLayout = ({ children }: { children: ReactNode }) => {
   const {
@@ -17,6 +18,16 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
 
   return (
     <>
+      {pathname === "/analysis" && (
+        <nav className="fixed top-4 left-4">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-accent transition-colors text-sm"
+          >
+            <ArrowLeft size={24} />
+          </Link>
+        </nav>
+      )}
       <main
         className={
           "min-w-0 " +
