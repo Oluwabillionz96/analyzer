@@ -4,14 +4,14 @@ import { X } from "lucide-react";
 
 interface ErrorCardProps {
   message: string;
-  onDismiss: () => void;
-  onRetry?: () => void;
+  onDismissAction: () => void;
+  onRetryAction?: () => void;
 }
 
 export default function ErrorCard({
   message,
-  onDismiss,
-  onRetry,
+  onDismissAction,
+  onRetryAction,
 }: ErrorCardProps) {
   return (
     <div className="border border-red-200 bg-red-50 rounded-lg shadow-sm p-6 space-y-4">
@@ -26,13 +26,13 @@ export default function ErrorCard({
       </div>
       <div className="flex gap-2">
         <button
-          onClick={onDismiss}
+          onClick={onDismissAction}
           className="text-sm px-3 py-1.5 rounded-md bg-red-100 text-red-700 hover:bg-red-200 transition-colors cursor-pointer"
         >
           Dismiss
         </button>
         <button
-          onClick={onRetry}
+          onClick={onRetryAction}
           className="text-sm px-3 py-1.5 rounded-md bg-red-100 text-red-700 hover:bg-red-200 transition-colors cursor-pointer"
         >
           Retry

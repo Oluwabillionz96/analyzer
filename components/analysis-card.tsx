@@ -50,10 +50,10 @@ function Section({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
-function TagList({ items }: { items: string[] }) {
+function TagList({ items }: { items?: string[] }) {
   return (
     <div className="flex flex-wrap gap-2">
-      {items.map((item) => (
+      {items?.map((item) => (
         <span key={item} className="bg-gray-100 rounded-full px-3 py-1 text-sm">
           {item}
         </span>

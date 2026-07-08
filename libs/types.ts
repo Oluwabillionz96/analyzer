@@ -2,6 +2,7 @@ export interface ApiResponse<T> {
   success: boolean;
   data?: T;
   error?: string;
+  meta?: Record<string, string | number | boolean>;
 }
 
 export interface AnalysisResponse {
@@ -13,3 +14,15 @@ export interface AnalysisResponse {
   likelyCompetitors: string[];
   confidenceNotes: string;
 }
+
+export interface CachedAnalysis extends AnalysisResponse {
+  id: string;
+  url: string;
+  searchcount: number;
+  created_at: string;
+  updated_at: string;
+  is_success: boolean;
+  error?: string;
+}
+
+export type SORTVALUES = "most-recent" | "oldest" | "most-searched" | "least-searched";

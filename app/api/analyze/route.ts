@@ -1,9 +1,39 @@
-import {
-  getPageContent,
-  getSiteAnalysis,
-  isFullUrl,
-} from "@/libs/utils-server";
+import { cleanUrl, isFullUrl, isThreeDaysOld } from "@/libs/utils-server";
+import { AnalysisResponse } from "@/libs/types";
 import { NextRequest, NextResponse } from "next/server";
+import getPageContent from "@/libs/get-page-content";
+import getSiteAnalysis from "@/libs/get-analysis";
+import {
+  addToDB,
+  getFromDB,
+  updateCache,
+  updateSearchCountAndLastUpdated,
+} from "@/libs/db-utils";
+
+async function analyze(url: string) {
+  try {
+    const pageContent = await getPageContent(
+      url,
+      process.env.BROWSERLESS_API_KEY,
+      process.env.BROWSERLESS_URL,
+    );
+
+    if (!pageContent) {
+      throw new Error("Website could not be analyzed");
+    }
+
+    const analysis = await getSiteAnalysis(
+      process.env.GROQ_REQUEST_URL,
+      pageContent,
+      process.env.GROQ_API_KEY,
+      url,
+    );
+
+    return analysis;
+  } catch (error) {
+    throw error;
+  }
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -26,21 +56,60 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const pageContent = await getPageContent(
-      url,
-      process.env.BROWSERLESS_API_KEY,
-      process.env.BROWSERLESS_URL,
-    );
+    const cachedAnalysis = await getFromDB(cleanUrl(url));
 
-    if (!pageContent) {
-      throw new Error("Website could not be analyzed");
+    if (cachedAnalysis) {
+      const {
+        id,
+        url: cachedUrl,
+        created_at,
+        updated_at,
+        searchcount,
+        is_success,
+        error,
+        ...analysis
+      } = cachedAnalysis;
+      void searchcount;
+      void created_at;
+      void cachedUrl;
+
+      let siteAnalysis: AnalysisResponse = analysis;
+
+      if (!is_success) {
+        return NextResponse.json(
+          { success: is_success, error },
+          { status: 400 },
+        );
+      }
+
+      if (isThreeDaysOld(updated_at)) {
+        try {
+          siteAnalysis = await analyze(url);
+          await Promise.all([
+            updateCache(siteAnalysis, id),
+            updateSearchCountAndLastUpdated(id),
+          ]);
+        } catch (error) {
+          console.warn({ error });
+        }
+        return NextResponse.json({ success: true, data: siteAnalysis });
+      }
+
+      try {
+        await updateSearchCountAndLastUpdated(id);
+      } catch (error) {
+        console.warn({ error });
+      }
+      return NextResponse.json({ success: true, data: siteAnalysis });
     }
-    const analysis = await getSiteAnalysis(
-      process.env.GROQ_REQUEST_URL,
-      pageContent,
-      process.env.GROQ_API_KEY,
-    );
 
+    const analysis = await analyze(url);
+
+    try {
+      await addToDB(analysis, url);
+    } catch (dbError) {
+      console.warn({ dbError });
+    }
     return NextResponse.json({
       success: true,
       data: analysis,
