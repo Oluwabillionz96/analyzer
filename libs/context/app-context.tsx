@@ -6,6 +6,8 @@ import {
   ReactNode,
   SetStateAction,
   SubmitEvent,
+  useEffect,
+  useLayoutEffect,
   useState,
 } from "react";
 import { AnalysisResponse, CachedAnalysis, SORTVALUES } from "../types";
@@ -44,7 +46,7 @@ const Context = createContext<{
 
 const AppContext = ({ children }: { children: ReactNode }) => {
   const isMobile = useIsMobile();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(isMobile ? false : true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const [isLoadingFromHistory, setIsLoadingFromHistory] = useState(false);
   const [analysis, setAnalysis] = useState<AnalysisResponse | null>(null);
@@ -57,6 +59,22 @@ const AppContext = ({ children }: { children: ReactNode }) => {
     label: string;
     value: SORTVALUES;
   }>(SORT_OPTIONS[0]);
+
+  useLayoutEffect(() => {
+    let isMounted = true;
+
+    if (isMounted) {
+      function checkIsMobile() {
+        setIsSidebarOpen(isMobile ? false : true);
+      }
+
+      checkIsMobile();
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isMobile]);
 
   async function handleSubmit(e?: SubmitEvent<HTMLFormElement>) {
     e?.preventDefault();
