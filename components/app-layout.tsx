@@ -19,7 +19,7 @@ const AppLayout = ({ children }: { children: ReactNode }) => {
   return (
     <>
       {pathname === "/analysis" && (
-        <nav className="fixed top-4 left-4">
+        <nav className="fixed top-0 left-0 right-0 py-4 pl-4  bg-white border-b ">
           <Link
             href="/"
             className="inline-flex items-center gap-2 text-accent transition-colors text-sm"

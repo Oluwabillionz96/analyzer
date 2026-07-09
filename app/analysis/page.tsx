@@ -27,7 +27,7 @@ export default function Analysis() {
   } = useAppContext();
 
   return (
-    <section className="min-h-screen place-items-center grid max-w-xl mx-auto py-4 px-6 space-y-6">
+    <section className="min-h-screen place-items-center grid max-w-xl mx-auto pt-24 pb-6 px-6 space-y-6">
       <div className="space-y-8 w-full">
         <form
           className="flex flex-col md:flex-row w-full justify-center gap-4"
