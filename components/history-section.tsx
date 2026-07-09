@@ -10,6 +10,7 @@ import {
 } from "@/libs/utils";
 import useAppContext from "@/libs/hooks/use-app-context";
 import { ChevronDown } from "lucide-react";
+import useIsMobile from "@/libs/hooks/use-is-mobile";
 
 export default function HistorySection({ isOpen }: { isOpen: boolean }) {
   const {
@@ -29,10 +30,11 @@ export default function HistorySection({ isOpen }: { isOpen: boolean }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const {
     state: { selectedSort },
-    stateSetters: { setSelectedSort },
+    stateSetters: { setSelectedSort, setIsSidebarOpen },
   } = useAppContext();
+  const isMobile = useIsMobile();
 
-  async function handleSelection(id: string) {
+  async function fetchAndSaveData(id: string) {
     try {
       setIsLoadingFromHistory(true);
       setAnalysis(null);
@@ -49,6 +51,20 @@ export default function HistorySection({ isOpen }: { isOpen: boolean }) {
     } finally {
       setIsLoadingFromHistory(false);
     }
+  }
+
+  async function handleSelection(id: string) {
+    if (isMobile) {
+      setIsSidebarOpen(false);
+    }
+    await fetchAndSaveData(id);
+    await fetchHistory(
+      setHistory,
+      setTotalHistory,
+      setIsLoadingHistory,
+      selectedSort.value,
+      page,
+    );
   }
   useEffect(() => {
     fetchHistory(
@@ -176,13 +192,6 @@ export default function HistorySection({ isOpen }: { isOpen: boolean }) {
                     className="text-left w-full hover:bg-gray-50 transition-colors rounded-lg"
                     onClick={async () => {
                       await handleSelection(item.id);
-                      await fetchHistory(
-                        setHistory,
-                        setTotalHistory,
-                        setIsLoadingHistory,
-                        selectedSort.value,
-                        page,
-                      );
                     }}
                   >
                     <HistoryCard data={item} />
