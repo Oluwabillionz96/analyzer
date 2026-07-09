@@ -117,7 +117,7 @@ export default function HistorySection({ isOpen }: { isOpen: boolean }) {
       {isOpen && <div className="fixed inset-0 bg-black/30 z-30 md:hidden" />}
       <div
         className={
-          "fixed right-0 top-0 h-screen overflow-y-auto p-4 transition-transform duration-300 z-40 w-80 md:w-80 bg-white md:border-l " +
+          "fixed right-0 top-0 h-screen overflow-y-auto p-4 pb-24 md:pb-6 transition-transform duration-300 z-40 w-80 md:w-80 bg-white md:border-l " +
           (isOpen
             ? "translate-x-0 shadow-2xl md:shadow-none"
             : "translate-x-full")
