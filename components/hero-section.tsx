@@ -89,9 +89,10 @@ const HeroSection = () => {
                   key={exampleUrl}
                   type="button"
                   onClick={() => handleExampleClick(exampleUrl)}
-                  className="px-4 py-2 text-sm text-accent-mid border border-[#C6C6CD] rounded-lg hover:bg-gray-50 transition-colors"
+                  className="px-4 py-2 text-sm text-accent-mid border border-[#C6C6CD] rounded-lg hover:bg-gray-50 transition-colors max-w-[200px] truncate"
+                  title={decodeURIComponent(exampleUrl)}
                 >
-                  {decodeURIComponent(exampleUrl).replace("https://", "")}
+                  {decodeURIComponent(exampleUrl).replace("https://", "").replace("http://", "")}
                 </button>
               ))}
             </div>
