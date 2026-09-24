@@ -19,9 +19,9 @@ export default async function getSiteAnalysis(
         "Content-Type": "application/json",
         authorization: `Bearer ${apiKey}`,
       },
-      // signal: AbortSignal.timeout(30000),
+      signal: AbortSignal.timeout(30000),
       body: JSON.stringify({
-        model: "openai/gpt-oss-20b",
+        model: "llama-3.1-8b-instant",
         messages: [
           {
             role: "system",
