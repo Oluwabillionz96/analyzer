@@ -25,4 +25,15 @@ export interface CachedAnalysis extends AnalysisResponse {
   error?: string;
 }
 
+export interface PageLink {
+  href: string;
+  origin: string;
+  anchor: string;
+}
+
+export interface SitePageContent {
+  text: string;
+  links: PageLink[];
+}
+
 export type SORTVALUES = "most-recent" | "oldest" | "most-searched" | "least-searched";

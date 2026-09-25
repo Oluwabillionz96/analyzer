@@ -18,13 +18,13 @@ async function analyze(url: string) {
       process.env.BROWSERLESS_URL,
     );
 
-    if (!pageContent) {
+    if (!pageContent.text) {
       throw new Error("Website could not be analyzed");
     }
 
     const analysis = await getSiteAnalysis(
       process.env.GROQ_REQUEST_URL,
-      pageContent,
+      pageContent.text,
       process.env.GROQ_API_KEY,
       url,
     );
