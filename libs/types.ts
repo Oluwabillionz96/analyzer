@@ -17,7 +17,7 @@ export interface AnalysisResponse {
 
 export interface CachedAnalysis extends AnalysisResponse {
   id: string;
-  url: string;
+  origin: string;
   searchcount: number;
   created_at: string;
   updated_at: string;

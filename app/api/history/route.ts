@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
   try {
     const [results, totalResult] = await Promise.all([
       pool.query(
-        `SELECT url, id, "companyName", created_at, updated_at, searchcount FROM analyses WHERE is_success = true ORDER BY ${safeColumn} ${safeDirection}, created_at DESC LIMIT $1 OFFSET $2 `,
+        `SELECT origin, id, "companyName", created_at, updated_at, searchcount FROM analyses WHERE is_success = true ORDER BY ${safeColumn} ${safeDirection}, created_at DESC LIMIT $1 OFFSET $2 `,
         [limit, offset],
       ),
       pool.query(`SELECT COUNT(*)::int AS total FROM analyses WHERE is_success=true`),

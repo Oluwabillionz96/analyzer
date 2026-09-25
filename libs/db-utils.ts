@@ -1,12 +1,13 @@
 import pool from "./db";
 import { AnalysisResponse, CachedAnalysis } from "./types";
-import { cleanUrl } from "./utils-server";
 
-export async function getFromDB(url: string): Promise<CachedAnalysis | null> {
+export async function getFromDB(
+  origin: string,
+): Promise<CachedAnalysis | null> {
   try {
     const result = await pool.query(
-      `SELECT * FROM analyses WHERE url = $1 LIMIT 1`,
-      [url],
+      `SELECT * FROM analyses WHERE origin = $1 LIMIT 1`,
+      [origin],
     );
     return result.rows[0] ?? null;
   } catch (error) {
@@ -14,8 +15,8 @@ export async function getFromDB(url: string): Promise<CachedAnalysis | null> {
   }
 }
 
-export async function addToDB(analysis: AnalysisResponse, url: string) {
-  if (!analysis || !url) return;
+export async function addToDB(analysis: AnalysisResponse, origin: string) {
+  if (!analysis || !origin) return;
 
   const {
     companyName,
@@ -29,10 +30,10 @@ export async function addToDB(analysis: AnalysisResponse, url: string) {
 
   try {
     await pool.query(
-      `INSERT INTO analyses (url, "companyName", summary, "targetCustomers", "businessModel", "keyFeatures", "likelyCompetitors", "confidenceNotes")
+      `INSERT INTO analyses (origin, "companyName", summary, "targetCustomers", "businessModel", "keyFeatures", "likelyCompetitors", "confidenceNotes")
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
       [
-        cleanUrl(url),
+        origin,
         companyName,
         summary,
         JSON.stringify(targetCustomers),

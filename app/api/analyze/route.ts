@@ -1,4 +1,4 @@
-import { cleanUrl, isFullUrl, isThreeDaysOld } from "@/libs/utils-server";
+import { getOrigin, isFullUrl, isThreeDaysOld } from "@/libs/utils-server";
 import { AnalysisResponse } from "@/libs/types";
 import { NextRequest, NextResponse } from "next/server";
 import getPageContent from "@/libs/get-page-content";
@@ -55,13 +55,14 @@ export async function POST(req: NextRequest) {
         { status: 400 },
       );
     }
+    const origin = getOrigin(url);
 
-    const cachedAnalysis = await getFromDB(cleanUrl(url));
+    const cachedAnalysis = await getFromDB(origin);
 
     if (cachedAnalysis) {
       const {
         id,
-        url: cachedUrl,
+        origin: cachedUrl,
         created_at,
         updated_at,
         searchcount,
@@ -106,7 +107,7 @@ export async function POST(req: NextRequest) {
     const analysis = await analyze(url);
 
     try {
-      await addToDB(analysis, url);
+      await addToDB(analysis, origin);
     } catch (dbError) {
       console.warn({ dbError });
     }
