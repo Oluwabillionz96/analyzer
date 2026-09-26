@@ -1,39 +1,12 @@
 import { getOrigin, isFullUrl, isThreeDaysOld } from "@/libs/utils-server";
 import { AnalysisResponse } from "@/libs/types";
 import { NextRequest, NextResponse } from "next/server";
-import getPageContent from "@/libs/get-page-content";
-import getSiteAnalysis from "@/libs/get-analysis";
+import { analyzePage, refreshCachedAnalysis } from "@/libs/analyze-page";
 import {
   addToDB,
   getFromDB,
-  updateCache,
   updateSearchCountAndLastUpdated,
 } from "@/libs/db-utils";
-
-async function analyze(url: string) {
-  try {
-    const pageContent = await getPageContent(
-      url,
-      process.env.BROWSERLESS_API_KEY,
-      process.env.BROWSERLESS_URL,
-    );
-
-    if (!pageContent.text) {
-      throw new Error("Website could not be analyzed");
-    }
-
-    const analysis = await getSiteAnalysis(
-      process.env.GROQ_REQUEST_URL,
-      pageContent.text,
-      process.env.GROQ_API_KEY,
-      url,
-    );
-
-    return analysis;
-  } catch (error) {
-    throw error;
-  }
-}
 
 export async function POST(req: NextRequest) {
   try {
@@ -85,11 +58,7 @@ export async function POST(req: NextRequest) {
 
       if (isThreeDaysOld(updated_at)) {
         try {
-          siteAnalysis = await analyze(url);
-          await Promise.all([
-            updateCache(siteAnalysis, id),
-            updateSearchCountAndLastUpdated(id),
-          ]);
+          siteAnalysis = await refreshCachedAnalysis(id, url);
         } catch (error) {
           console.warn({ error });
         }
@@ -104,7 +73,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true, data: siteAnalysis });
     }
 
-    const analysis = await analyze(url);
+    const analysis = await analyzePage(url);
 
     try {
       await addToDB(analysis, origin);
