@@ -93,18 +93,20 @@ export default function HistorySection({ isOpen }: { isOpen: boolean }) {
       ) {
         isLoading = true;
         setIsLoadingHistory(true);
-        loadHistory(page + 1, selectedSort.value)
-          .then((data) => {
-            setHistory((prev) => [...prev, ...(data.data ?? [])]);
-            setPage(data?.page ?? page);
-          })
-          .catch((error) => {
-            console.warn("Failed to load more history:", error);
-          })
-          .finally(() => {
-            isLoading = false;
-            setIsLoadingHistory(false);
-          });
+        setTimeout(() => {
+          loadHistory(page + 1, selectedSort.value)
+            .then((data) => {
+              setHistory((prev) => [...prev, ...(data.data ?? [])]);
+              setPage(data?.page ?? page);
+            })
+            .catch((error) => {
+              console.warn("Failed to load more history:", error);
+            })
+            .finally(() => {
+              isLoading = false;
+              setIsLoadingHistory(false);
+            });
+        }, 1500);
       }
     }
 
