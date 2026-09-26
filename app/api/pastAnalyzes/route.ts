@@ -33,7 +33,10 @@ export async function PATCH(req: NextRequest) {
       isThreeDaysOld(analysis.updated_at)
     ) {
       try {
-        const fresh = await refreshCachedAnalysis(id, analysis.origin);
+        const fresh = await refreshCachedAnalysis(
+          id,
+          decodeURIComponent(analysis.origin),
+        );
         return NextResponse.json({ success: true, data: fresh });
       } catch (error) {
         console.warn({ error });

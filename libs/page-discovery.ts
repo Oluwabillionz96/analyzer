@@ -1,4 +1,4 @@
-import { PageLink, SitePageContent } from "./types";
+import { PageLink } from "./types";
 import { getOrigin } from "./utils-server";
 
 const GROQ_MODEL = "openai/gpt-oss-20b";
@@ -34,7 +34,8 @@ function normalizeHref(href: string): string | null {
   try {
     const url = new URL(href);
     url.hash = "";
-    const path = url.pathname.replace(/\/{2,}/g, "/").replace(/\/+$/, "") || "/";
+    const path =
+      url.pathname.replace(/\/{2,}/g, "/").replace(/\/+$/, "") || "/";
     return `${url.origin}${path}${url.search}`;
   } catch {
     return null;
@@ -64,9 +65,7 @@ export function filterCandidateLinks(
     const segments = url.pathname.split("/").filter(Boolean);
     if (segments.length > MAX_PATH_DEPTH) continue;
     if (
-      segments.some((segment) =>
-        NOISE_PATH_SEGMENTS.has(segment.toLowerCase()),
-      )
+      segments.some((segment) => NOISE_PATH_SEGMENTS.has(segment.toLowerCase()))
     ) {
       continue;
     }
@@ -144,10 +143,10 @@ async function rankDiscoveryPages(
 
 export default async function discoverPages(
   rootUrl: string,
-  content: SitePageContent,
+  links: PageLink[],
   apiKey?: string,
 ): Promise<string[]> {
-  const candidates = filterCandidateLinks(content.links, rootUrl);
+  const candidates = filterCandidateLinks(links, rootUrl);
   if (candidates.length === 0) return [];
   return rankDiscoveryPages(rootUrl, candidates, apiKey);
 }

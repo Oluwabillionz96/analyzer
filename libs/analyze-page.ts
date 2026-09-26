@@ -2,6 +2,7 @@ import { AnalysisResponse } from "./types";
 import getPageContent from "./get-page-content";
 import getSiteAnalysis from "./get-analysis";
 import { updateCache, updateSearchCountAndLastUpdated } from "./db-utils";
+import discoverPages from "./page-discovery";
 
 export async function analyzePage(url: string): Promise<AnalysisResponse> {
   const pageContent = await getPageContent(
@@ -10,7 +11,11 @@ export async function analyzePage(url: string): Promise<AnalysisResponse> {
     process.env.BROWSERLESS_URL,
   );
 
-  console.log(pageContent.links)
+  const links = await discoverPages(
+    url,
+    pageContent.links,
+    process.env.GROQ_API_KEY,
+  );
 
   if (!pageContent.text) {
     throw new Error("Website could not be analyzed");
