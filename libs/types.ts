@@ -36,4 +36,11 @@ export interface SitePageContent {
   links: PageLink[];
 }
 
+export interface PageContentInput {
+  url: string;
+  text: string;
+}
+
 export type SORTVALUES = "most-recent" | "oldest" | "most-searched" | "least-searched";
+
+export type PageContent = { url: string; text: string };

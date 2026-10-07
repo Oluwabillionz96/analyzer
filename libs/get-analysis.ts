@@ -1,10 +1,11 @@
 import pool from "./db";
-import { AnalysisResponse } from "./types";
+import { ANALYSIS_SYSTEM_PROMPT, buildAnalysisMessage } from "./prompt";
+import { AnalysisResponse, PageContent } from "./types";
 import { getOrigin } from "./utils-server";
 
 export default async function getSiteAnalysis(
   url: string | undefined,
-  siteContent: string,
+  pages: PageContent[],
   apiKey: string | undefined,
   siteUrl: string,
 ): Promise<AnalysisResponse> {
@@ -25,31 +26,12 @@ export default async function getSiteAnalysis(
         messages: [
           {
             role: "system",
-            content: `You are a business analyst that extracts structured company intelligence from website content. Analyze the provided text and return a JSON object.
-
-              Fields:
-              - companyName (string): The company name
-              - summary (string): 2-3 sentence overview of what the company does
-              - targetCustomers (array of strings): Who they serve
-              - businessModel (string): How they make money
-              - keyFeatures (array of strings): Main product features or capabilities
-              - likelyCompetitors (array of strings): Companies offering similar products
-              - confidenceNotes (string): What you're sure about vs what you inferred
-
-              If the content is too short for a correct analysis return:
-              { "error": true, "message": "Site could not be analyzed due to insufficient content" }
-
-              If the content does not belong to a company, product, service, or organization — or if you're unsure what's being offered — do NOT make up a response. Instead return:
-              { "error": true, "message": "The site content does not clearly describe a company, product, or service. It may be a blog, documentation, or non-commercial page." }
-
-
-              Return ONLY valid JSON. No explanation. No markdown.
-`,
+            content: ANALYSIS_SYSTEM_PROMPT,
           },
 
           {
             role: "user",
-            content: siteContent,
+            content: buildAnalysisMessage(pages),
           },
         ],
         response_format: { type: "json_object" },
@@ -60,7 +42,10 @@ export default async function getSiteAnalysis(
       console.warn("Site analysis request failed", {
         status: response.status,
         statusText: response.statusText,
-        siteContentLength: siteContent.length,
+        siteContentLength: pages.map((p) => ({
+          url: p.url,
+          textLength: p.text.length,
+        })),
       });
       console.warn(response);
       throw new Error(`Failed to analyze website: ${response.statusText}`);
@@ -73,7 +58,7 @@ export default async function getSiteAnalysis(
     if (aiResponse.error) {
       await pool.query(
         `INSERT INTO analyses (origin, error, is_success, pageContent) VALUES($1, $2, $3, $4)`,
-        [getOrigin(siteUrl), aiResponse.message, false, siteContent],
+        [getOrigin(siteUrl), aiResponse.message, false, pages[0].text],
       );
       throw new Error(aiResponse.message);
     }

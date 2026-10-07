@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true, data: siteAnalysis });
     }
 
-    const analysis = await analyzePage(url);
+    const analysis = await analyzePage(origin);
 
     try {
       await addToDB(analysis, origin);

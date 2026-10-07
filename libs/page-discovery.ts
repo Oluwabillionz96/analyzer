@@ -1,5 +1,6 @@
 import { PageLink } from "./types";
 import { getOrigin } from "./utils-server";
+import { buildDiscoveryMessage, DISCOVERY_SYSTEM_PROMPT } from "./prompt";
 
 const GROQ_MODEL = "openai/gpt-oss-20b";
 const MAX_CANDIDATES = 25;
@@ -102,14 +103,11 @@ async function rankDiscoveryPages(
         messages: [
           {
             role: "system",
-            content:
-              "You are a site-mapping strategist for a business-analysis tool. Given a home page URL and a list of internal pages, choose up to 3 pages most useful for understanding a business: what it builds and sells, who it sells to, its pricing/business model, and its standout features. Prefer product, solution, pricing, features, about, and customers pages. Ignore login, cart, account, and trivial pages.",
+            content: DISCOVERY_SYSTEM_PROMPT,
           },
           {
             role: "user",
-            content:
-              `Home page: ${rootUrl}\nCandidate pages:\n${JSON.stringify(list)}\n` +
-              `Respond with JSON only: {"pages": ["<absolute url>", ...]} — at most ${MAX_RANKED_PAGES}, each an exact candidate href.`,
+            content: buildDiscoveryMessage(rootUrl, list, MAX_RANKED_PAGES),
           },
         ],
         response_format: { type: "json_object" },
