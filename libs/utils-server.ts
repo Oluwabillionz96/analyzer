@@ -12,6 +12,7 @@ export function isThreeDaysOld(createdAt: string): boolean {
   return new Date(createdAt) < threeDaysAgo;
 }
 
-export function getOrigin(url: string) {
-  return new URL(url).origin.replace(/^https?:\/\/www./, "");
+export function getOrigin(url: string): string {
+  const { protocol, host } = new URL(url);
+  return `${protocol}//${host.replace(/^www\./i, "")}`;
 }
