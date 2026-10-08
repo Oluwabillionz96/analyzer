@@ -41,6 +41,12 @@ export interface PageContentInput {
   text: string;
 }
 
-export type SORTVALUES = "most-recent" | "oldest" | "most-searched" | "least-searched";
+export type SORTVALUES =
+  | "most-recent"
+  | "oldest"
+  | "most-searched"
+  | "least-searched";
 
 export type PageContent = { url: string; text: string };
+
+export type AnalysisStages = "fetching" | "discovering" | "analyzing";
