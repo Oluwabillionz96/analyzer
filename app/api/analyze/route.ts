@@ -97,10 +97,11 @@ export async function POST(req: NextRequest) {
             if (!is_success) {
               emit(
                 controller,
-                "analysis",
+                "error",
                 { success: is_success, error },
                 encoder,
               );
+              controller.close();
               // return NextResponse.json(
               //   { success: is_success, error },
               //   { status: 400 },
@@ -122,6 +123,7 @@ export async function POST(req: NextRequest) {
                 },
                 encoder,
               );
+              controller.close();
               // return NextResponse.json({ success: true, data: siteAnalysis });
             }
 
@@ -139,6 +141,7 @@ export async function POST(req: NextRequest) {
               },
               encoder,
             );
+            controller.close();
             // return NextResponse.json({ success: true, data: siteAnalysis });
           }
 
