@@ -76,6 +76,7 @@ export async function analyzeUrl(
         }
       }
     }
+    throw new Error("Server did not return any analysis data.");
   } catch (error) {
     console.log(error);
     throw error;
