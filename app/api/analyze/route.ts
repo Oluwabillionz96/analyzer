@@ -8,22 +8,6 @@ import {
   updateSearchCountAndLastUpdated,
 } from "@/libs/db-utils";
 
-function onAction(stage: AnalysisStages) {
-  const encoder = new TextEncoder();
-
-  const stream = new ReadableStream({
-    async start(controller) {
-      controller.enqueue(encoder.encode(`data: ${stage}\n\n`));
-      controller.close();
-    },
-  });
-
-  return new Response(stream, {
-    headers: {
-      "content-type": "text/event-stream",
-    },
-  });
-}
 
 const emit = (
   controller: ReadableStreamDefaultController,
@@ -180,7 +164,7 @@ export async function POST(req: NextRequest) {
 
     return new Response(stream, {
       headers: {
-        "content-type": "text/event-stream",
+        "content-type": "text/plain;charset=UTF-8",
       },
     });
   } catch (error) {
