@@ -47,9 +47,9 @@ export default async function getSiteAnalysis(
           textLength: p.text.length,
         })),
       });
-      console.warn(response);
       throw new Error(`Failed to analyze website: ${response.statusText}`);
     }
+
 
     const aiData = await response.json();
 

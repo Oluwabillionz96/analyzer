@@ -124,7 +124,7 @@ export async function getAllHistory(
     );
     if (!response.ok) {
       const body = await response.json();
-      throw new Error(body.error ?? body.message ?? `HTTP ${response.status}`);
+      throw new Error(body.error ?? body.message ?? `Analysis Failed`);
     }
     const data = await response.json();
     return data as ApiResponse<CachedAnalysis[]>;
