@@ -10,7 +10,7 @@ import {
 export async function analyzeUrl(
   url: string,
   onStage?: (stage: AnalysisStages) => void,
-): Promise<ApiResponse<AnalysisResponse> | undefined> {
+): Promise<ApiResponse<AnalysisResponse>> {
   try {
     const response = await fetch("api/analyze", {
       method: "POST",

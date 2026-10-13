@@ -76,8 +76,6 @@ export async function POST(req: NextRequest) {
             void created_at;
             void cachedUrl;
 
-            let siteAnalysis: AnalysisResponse = analysis;
-
             if (!is_success) {
               emit(
                 controller,
@@ -86,11 +84,10 @@ export async function POST(req: NextRequest) {
                 encoder,
               );
               controller.close();
-              // return NextResponse.json(
-              //   { success: is_success, error },
-              //   { status: 400 },
-              // );
+              return;
             }
+
+            let siteAnalysis: AnalysisResponse = analysis;
 
             if (isThreeDaysOld(updated_at)) {
               try {
@@ -108,7 +105,7 @@ export async function POST(req: NextRequest) {
                 encoder,
               );
               controller.close();
-              // return NextResponse.json({ success: true, data: siteAnalysis });
+              return;
             }
 
             try {
@@ -126,7 +123,7 @@ export async function POST(req: NextRequest) {
               encoder,
             );
             controller.close();
-            // return NextResponse.json({ success: true, data: siteAnalysis });
+            return;
           }
 
           const analysis = await analyzePage(origin, announce);
@@ -145,10 +142,6 @@ export async function POST(req: NextRequest) {
             },
             encoder,
           );
-          // return NextResponse.json({
-          //   success: true,
-          //   data: analysis,
-          // });
           controller.close();
         } catch (err) {
           emit(
@@ -178,3 +171,5 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export const maxDuration = 300;
