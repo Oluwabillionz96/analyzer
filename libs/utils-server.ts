@@ -1,3 +1,6 @@
+import { refreshCachedAnalysis } from "./analyze-page";
+import { AnalysisResponse, AnalysisStages } from "./types";
+
 export function isFullUrl(url: string) {
   try {
     new URL(url);

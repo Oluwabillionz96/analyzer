@@ -74,6 +74,7 @@ export async function POST(req: NextRequest) {
               searchcount,
               is_success,
               error,
+              last_updated_content_at,
               ...analysis
             } = cachedAnalysis;
             void searchcount;
@@ -93,7 +94,7 @@ export async function POST(req: NextRequest) {
 
             let siteAnalysis: AnalysisResponse = analysis;
 
-            if (isThreeDaysOld(updated_at)) {
+            if (isThreeDaysOld(last_updated_content_at)) {
               try {
                 siteAnalysis = await refreshCachedAnalysis(id, url, announce);
               } catch (error) {

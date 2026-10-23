@@ -21,6 +21,7 @@ export interface CachedAnalysis extends AnalysisResponse {
   searchcount: number;
   created_at: string;
   updated_at: string;
+  last_updated_content_at: string,
   is_success: boolean;
   error?: string;
 }

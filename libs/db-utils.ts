@@ -66,8 +66,9 @@ export async function updateCache(
   updatedAnalysis: AnalysisResponse,
   id: string,
 ) {
+
   await pool.query(
-    `UPDATE analyses AS a SET "companyName" = $1, summary = $2, "targetCustomers" = $3, "businessModel" = $4, "keyFeatures" = $5, "likelyCompetitors" = $6, "confidenceNotes" = $7, updated_at=$8 WHERE id = $9`,
+    `UPDATE analyses AS a SET "companyName" = $1, summary = $2, "targetCustomers" = $3, "businessModel" = $4, "keyFeatures" = $5, "likelyCompetitors" = $6, "confidenceNotes" = $7, updated_at=$8, last_updated_content_at=$8 WHERE id = $9`,
     [
       updatedAnalysis.companyName,
       updatedAnalysis.summary,
