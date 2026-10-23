@@ -3,9 +3,12 @@ import { isThreeDaysOld } from "@/libs/utils-server";
 import { refreshCachedAnalysis } from "@/libs/analyze-page";
 import { updateSearchCountAndLastUpdated } from "@/libs/db-utils";
 import { NextRequest, NextResponse } from "next/server";
+import { checkRateLimit, rateLimitResponse } from "@/libs/rate-limits";
 
 export async function PATCH(req: NextRequest) {
   try {
+    const limited = await checkRateLimit(req);
+    if(limited) return rateLimitResponse(limited)
     const { id } = await req.json();
     if (!id) {
       return NextResponse.json(

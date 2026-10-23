@@ -7,6 +7,7 @@ import {
   getFromDB,
   updateSearchCountAndLastUpdated,
 } from "@/libs/db-utils";
+import { checkRateLimit, rateLimitResponse } from "@/libs/rate-limits";
 
 
 const emit = (
@@ -44,6 +45,9 @@ export async function POST(req: NextRequest) {
         { status: 400 },
       );
     }
+    const limited = await checkRateLimit(req)
+    if(limited) return rateLimitResponse(limited)
+
     const origin = getOrigin(url);
 
     const encoder = new TextEncoder();
