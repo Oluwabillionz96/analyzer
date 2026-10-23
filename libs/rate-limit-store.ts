@@ -16,14 +16,14 @@ export async function consume(bucket: string, limit: number):Promise<LimitResult
   const {hits, reset_at} = data.rows[0]
 
  return {
-   allowed: limit > hits,
+   allowed: limit >= hits,
    resetAt: reset_at
  }
   }catch(err){
     console.error({error: err})
     return {
       allowed: true,
-      resetAt: new Date(Date.now() + 3_600_600)
+      resetAt: new Date(Date.now() + 3_600_000)
     }
  }
 }

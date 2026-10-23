@@ -8,7 +8,7 @@ const GLOBAL = Number(process.env.RATE_LIMIT_GLOBAL_HOURLY ?? 100);
 
 function clientBucket(req: NextRequest){
   const forwarded = req.headers.get("x-forwarded-for")
-  const ip = forwarded? forwarded.split(",")[0]:"unknown"
+  const ip = forwarded? forwarded.split(",")[0].trim():req.headers.get("x-real-ip")?.trim()??"unknown"
   return `ip:${ip}`
 }
 
@@ -23,7 +23,7 @@ export async function checkRateLimit(req: NextRequest):Promise<LimitResult | nul
 }
 
 export function rateLimitResponse(result: LimitResult){
-  const retryAfter = Math.max(1, Math.ceil(result.resetAt.getTime() - Date.now())/ 1000)
+  const retryAfter = Math.max(1, Math.ceil((result.resetAt.getTime() - Date.now())/ 1000))
 
   return NextResponse.json({error:"Too many requests. Try again Later", success:false},{status:429, headers:{"Retry-After":String(retryAfter)}})
 }
