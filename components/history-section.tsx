@@ -14,7 +14,7 @@ import useIsMobile from "@/libs/hooks/use-is-mobile";
 
 export default function HistorySection({ isOpen }: { isOpen: boolean }) {
   const {
-    state: { isLoadingHistory: loading, history, totalHistory },
+    state: { isLoadingHistory: loading, history, totalHistory},
     stateSetters: {
       setHistory,
       setIsLoadingHistory,
@@ -22,6 +22,7 @@ export default function HistorySection({ isOpen }: { isOpen: boolean }) {
       setAnalysis,
       setError,
       setTotalHistory,
+      setStage
     },
   } = useAppContext();
   const historyBarRef = useRef<HTMLDivElement>(null);
@@ -38,7 +39,7 @@ export default function HistorySection({ isOpen }: { isOpen: boolean }) {
     try {
       setIsLoadingFromHistory(true);
       setAnalysis(null);
-      const response = await getAnalysisById(id);
+      const response = await getAnalysisById(id, setStage);
       if (!response?.success) {
         throw new Error(response?.error);
       }

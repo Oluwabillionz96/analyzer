@@ -36,7 +36,7 @@ export const emit = (
   );
 };
 
-export async function streamCacheAnalysis (cachedAnalysis: CachedAnalysis, 
+export async function streamCacheAnalysis (cachedAnalysis: CachedAnalysis,
   controller:ReadableStreamDefaultController, announce: (stage:AnalysisStages)=>void ){
 const encoder = new TextEncoder()
     const {
@@ -70,6 +70,7 @@ const encoder = new TextEncoder()
     let siteAnalysis: AnalysisResponse = analysis;
 
     if (isThreeDaysOld(last_updated_content_at)) {
+     
       try {
         siteAnalysis = await refreshCachedAnalysis(id, cachedUrl, announce);
       } catch (error) {
@@ -86,8 +87,10 @@ const encoder = new TextEncoder()
       );
       controller.close();
       return;
+    }else{
+      announce("retrieving")
     }
-
+    
     try {
       await updateSearchCountAndLastUpdated(id);
     } catch (error) {

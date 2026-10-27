@@ -45,6 +45,7 @@ const Context = createContext<{
     setSelectedSort: Dispatch<
       SetStateAction<{ label: string; value: SORTVALUES }>
     >;
+    setStage: Dispatch<SetStateAction<AnalysisStages | null>>
   };
   handleSubmit: (e?: SubmitEvent<HTMLFormElement>) => Promise<void>;
 } | null>(null);
@@ -126,6 +127,7 @@ const AppContext = ({ children }: { children: ReactNode }) => {
           setUrl,
           setIsLoadingAnalysis,
           setSelectedSort,
+          setStage
         },
         handleSubmit,
       }}

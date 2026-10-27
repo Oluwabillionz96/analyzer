@@ -11,6 +11,7 @@ const STAGE_MESSAGES: Record<AnalysisStages, string> = {
   fetching: "Getting site content…",
   discovering: "Discovering related pages…",
   analyzing: "Analyzing the content…",
+  retrieving:"Retrieving content..."
 };
 
 export default function Analysis() {
@@ -68,14 +69,12 @@ export default function Analysis() {
             {loading ? (stage ? `${stage}...` : "Analyzing...") : "Analyze"}
           </button>
         </form>
-        {isLoadingFromHistory && !loading && <SkeletonLoader />}
-        {loading && stage && (
+        {(isLoadingFromHistory || loading) ? stage ? (
           <div className="border rounded-lg shadow-sm p-6 flex items-center gap-3">
             <div className="h-4 w-4 rounded-full border-2 border-gray-300 border-t-black animate-spin" />
             <p className="font-medium">{STAGE_MESSAGES[stage]}</p>
           </div>
-        )}
-        {loading && !stage && <SkeletonLoader />}
+        ):<SkeletonLoader />: null }
         <div className="space-y-4">
           {error && !loading && !isLoadingFromHistory && (
             <ErrorCard

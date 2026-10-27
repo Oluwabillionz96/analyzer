@@ -1,11 +1,10 @@
-import { emit, getOrigin, isFullUrl, isThreeDaysOld, streamCacheAnalysis, testShit } from "@/libs/utils-server";
-import { AnalysisResponse, AnalysisStages } from "@/libs/types";
+import { emit, getOrigin, isFullUrl, streamCacheAnalysis} from "@/libs/utils-server";
+import { AnalysisStages } from "@/libs/types";
 import { NextRequest, NextResponse } from "next/server";
-import { analyzePage, refreshCachedAnalysis } from "@/libs/analyze-page";
+import { analyzePage} from "@/libs/analyze-page";
 import {
   addToDB,
   getFromDB,
-  updateSearchCountAndLastUpdated,
 } from "@/libs/db-utils";
 import { checkRateLimit, rateLimitResponse } from "@/libs/rate-limits";
 
@@ -88,7 +87,7 @@ export async function POST(req: NextRequest) {
 
     return new Response(stream, {
       headers: {
-        "content-type": "text/plain;charset=UTF-8",
+        "content-type": "text/event-stream",
       },
     });
   } catch (error) {

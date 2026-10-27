@@ -50,4 +50,4 @@ export type SORTVALUES =
 
 export type PageContent = { url: string; text: string };
 
-export type AnalysisStages = "fetching" | "discovering" | "analyzing";
+export type AnalysisStages = "fetching" | "discovering" | "analyzing" | "retrieving";
