@@ -1,6 +1,6 @@
 # Analysator
 
-Analysator is a tool that acts as a landing page's analyst. It takes in a URL and returns a structured output that includes Company name, short description, Business Model, Key features, Target Market and Likely competitors all based on the pages content.
+Analysator is a tool that acts as a website analyst. It takes in a URL, normalizes it to its origin, discovers related pages on the site, uses an LLM to infer and select the top 3 most relevant pages, fetches and aggregates their content, and returns a structured output that includes Company name, short description, Business Model, Key features, Target Market and Likely competitors based on the full site context.
 
 ## Screenshots
 
@@ -10,15 +10,17 @@ Analysator is a tool that acts as a landing page's analyst. It takes in a URL an
 
 ## Features
 
-- Analyzes landing pages and extracts structured business intelligence
-- Extracts company name, summary, business model, target market and likely competitors based on the pages content
+- Analyzes entire websites (not just landing pages) to extract structured business intelligence
+- Discovers related pages from the site and selects the top 3 most relevant pages (LLM-inferred)
+- Aggregates content from the origin and top 3 pages to build a fuller site context
+- Extracts company name, summary, business model, target market and likely competitors based on aggregated site content
 - AI confidence notes on inferred vs. explicitly stated information
 - Dynamic example URLs populated from most searched sites in the database
 - Persistent history sidebar with sortable filters (most recent, oldest, most searched, least searched)
 - Responsive design with mobile-optimized sidebar behavior
 - Skeleton loading states for smooth user experience
 - Navigation between home and analysis pages
-- Cached results in PostgreSQL to avoid redundant API calls
+- Cached results in PostgreSQL to avoid redundant API calls, re-analyzed on cache hit once older than 3 days
 
 ## Tech Stack
 
@@ -30,6 +32,7 @@ Analysator is a tool that acts as a landing page's analyst. It takes in a URL an
 - Browserless (headless content fetching)
 - Cheerio (HTML parsing)
 - Groq API (AI inference)
+- Lucide React (icons)
 
 ## Prerequisites
 
@@ -53,7 +56,7 @@ You'll need to create a PostgreSQL table with the following structure:
 ```sql
 CREATE TABLE analyses (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  url TEXT NOT NULL,
+  origin TEXT NOT NULL,
   "companyName" TEXT,
   summary TEXT,
   "targetCustomers" JSONB,
@@ -65,13 +68,15 @@ CREATE TABLE analyses (
   is_success BOOLEAN DEFAULT true,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW(),
+  last_updated_content_at TIMESTAMP DEFAULT NOW(),
   error TEXT,
-  pagecontent TEXT,
+  pagecontent TEXT
 );
 
-CREATE INDEX idx_analyses_url ON analyses(url);
+CREATE INDEX idx_analyses_origin ON analyses(origin);
 CREATE INDEX idx_analyses_searchcount ON analyses(searchcount);
 CREATE INDEX idx_analyses_updated_at ON analyses(updated_at);
+CREATE INDEX idx_analyses_last_updated_content_at ON analyses(last_updated_content_at);
 ```
 
 ## Environment Variables
@@ -87,10 +92,13 @@ CREATE INDEX idx_analyses_updated_at ON analyses(updated_at);
 ## How it works
 
 1. User submits URL via POST request to `/api/analyze` (or clicks a suggested URL from the hero section)
-2. Server fetches page's content via Browserless, strips unwanted elements (e.g footer, nav, etc) and parses HTML with Cheerio.
-3. Sends cleaned text to Groq with a structured system prompt
-4. Parses Groq's JSON response -> returns structured analysis to client
-5. Analysis is cached in PostgreSQL and becomes available in the searchable history sidebar
+2. Server normalizes the URL to its origin and discovers related pages on the site.
+3. An LLM infers and selects the top 3 most relevant pages for analysis.
+4. Server fetches content from the origin and those top 3 pages via Browserless, strips unwanted elements (e.g footer, nav, etc) and parses HTML with Cheerio; content is aggregated to build the site context.
+5. Sends the aggregated cleaned text to Groq with a structured system prompt
+6. Parses Groq's JSON response -> returns structured analysis to client
+7. Analysis is cached in PostgreSQL and becomes available in the searchable history sidebar
+8. On a repeat request the cached row is returned and its `searchcount` is incremented, but if `last_updated_content_at` is more than 3 days old the site is re-analyzed and the cached row is refreshed in place
 
 ## Project Structure
 
@@ -105,7 +113,7 @@ app/
     history/
       route.ts          - GET handler for fetching sorted/paginated history
     pastAnalyzes/
-      route.ts          - GET handler for retrieving specific analysis by ID
+      route.ts          - PATCH handler for retrieving specific analysis by ID
 components/
   hero-section.tsx      - hero with input form and dynamic example URLs
   features-section.tsx  - "What you get" feature grid
@@ -117,8 +125,17 @@ components/
   app-layout.tsx        - main layout wrapper
   footer.tsx            - footer component
 libs/
+  analyze-page.ts       - orchestration for fetching, extracting, and analyzing page content
   db.ts                 - PostgreSQL connection pool
   db-utils.ts           - database query helpers
+  get-analysis.ts       - Groq inference call and structured system prompt
+  get-page-content.ts   - Browserless content fetch, HTML cleanup and truncation
+  page-discovery.ts     - page discovery utilities
+  prompt.ts             - prompt definitions
+  rate-limit-store.ts   - rate limiting storage
+  rate-limits.ts        - rate limiting logic
+  readable-stream-async-iterable.d.ts - Type augmentation for async iteration over ReadableStream
+  stream-response.ts    - streaming response helpers
   utils.ts              - client-side utility functions
   utils-server.ts       - server-side utility functions
   types.ts              - shared type definitions
@@ -132,7 +149,7 @@ libs/
 ## Limitations
 
 - Currently can't correctly discern the difference between a company or product websites and a generic blog or news site
-- Site Contents are truncated to ~10K characters
+- Aggregated site content is truncated to fit model/context constraints
 - Runs on free tier of Browserless and Groq
 
 ## Acknowledgements
