@@ -1,7 +1,5 @@
-import pool from "@/libs/db";
-import { emit, isThreeDaysOld, streamCacheAnalysis } from "@/libs/utils-server";
-import { refreshCachedAnalysis } from "@/libs/analyze-page";
-import { getFromDB, updateSearchCountAndLastUpdated } from "@/libs/db-utils";
+import { emit,streamCacheAnalysis } from "@/libs/utils-server";
+import { getFromDB } from "@/libs/db-utils";
 import { NextRequest, NextResponse } from "next/server";
 import { checkRateLimit, rateLimitResponse } from "@/libs/rate-limits";
 import { AnalysisStages } from "@/libs/types";
