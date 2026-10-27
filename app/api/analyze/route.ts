@@ -1,4 +1,4 @@
-import { getOrigin, isFullUrl, isThreeDaysOld } from "@/libs/utils-server";
+import { emit, getOrigin, isFullUrl, isThreeDaysOld, streamCacheAnalysis, testShit } from "@/libs/utils-server";
 import { AnalysisResponse, AnalysisStages } from "@/libs/types";
 import { NextRequest, NextResponse } from "next/server";
 import { analyzePage, refreshCachedAnalysis } from "@/libs/analyze-page";
@@ -10,20 +10,7 @@ import {
 import { checkRateLimit, rateLimitResponse } from "@/libs/rate-limits";
 
 
-const emit = (
-  controller: ReadableStreamDefaultController,
-  event: string,
-  data: {
-    success: boolean;
-    data?: Record<string, unknown>;
-    error?: string;
-  },
-  encoder: TextEncoder,
-) => {
-  controller.enqueue(
-    encoder.encode(`event: ${event}\ndata:${JSON.stringify(data)} \n\n`),
-  );
-};
+
 
 export async function POST(req: NextRequest) {
   try {
@@ -55,7 +42,7 @@ export async function POST(req: NextRequest) {
     const stream = new ReadableStream({
       async start(controller) {
         try {
-          const cachedAnalysis = await getFromDB(origin);
+          const cachedAnalysis = await getFromDB("origin",origin);
 
           const announce = (stage: AnalysisStages) =>
             emit(
@@ -66,69 +53,8 @@ export async function POST(req: NextRequest) {
             );
 
           if (cachedAnalysis) {
-            const {
-              id,
-              origin: cachedUrl,
-              created_at,
-              updated_at,
-              searchcount,
-              is_success,
-              error,
-              last_updated_content_at,
-              ...analysis
-            } = cachedAnalysis;
-            void searchcount;
-            void created_at;
-            void cachedUrl;
-
-            if (!is_success) {
-              emit(
-                controller,
-                "error",
-                { success: is_success, error },
-                encoder,
-              );
-              controller.close();
-              return;
-            }
-
-            let siteAnalysis: AnalysisResponse = analysis;
-
-            if (isThreeDaysOld(last_updated_content_at)) {
-              try {
-                siteAnalysis = await refreshCachedAnalysis(id, url, announce);
-              } catch (error) {
-                console.warn({ error });
-              }
-              emit(
-                controller,
-                "analysis",
-                {
-                  success: true,
-                  data: siteAnalysis as unknown as Record<string, unknown>,
-                },
-                encoder,
-              );
-              controller.close();
-              return;
-            }
-
-            try {
-              await updateSearchCountAndLastUpdated(id);
-            } catch (error) {
-              console.warn({ error });
-            }
-            emit(
-              controller,
-              "analysis",
-              {
-                success: true,
-                data: siteAnalysis as unknown as Record<string, unknown>,
-              },
-              encoder,
-            );
-            controller.close();
-            return;
+           await streamCacheAnalysis(cachedAnalysis, controller, announce)
+           return;
           }
 
           const analysis = await analyzePage(origin, announce);

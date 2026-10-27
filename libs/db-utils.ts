@@ -2,12 +2,13 @@ import pool from "./db";
 import { AnalysisResponse, CachedAnalysis } from "./types";
 
 export async function getFromDB(
-  origin: string,
+  property: "origin" | "id",
+  value: string,
 ): Promise<CachedAnalysis | null> {
   try {
     const result = await pool.query(
-      `SELECT * FROM analyses WHERE origin = $1 LIMIT 1`,
-      [origin],
+      `SELECT * FROM analyses WHERE "${property}" = $1 LIMIT 1`,
+      [ value],
     );
     return result.rows[0] ?? null;
   } catch (error) {
