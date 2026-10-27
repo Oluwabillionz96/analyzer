@@ -15,12 +15,12 @@ export default function HowItWorks() {
           {
             icon: Link2,
             title: "Paste URL",
-            desc: "Enter any landing page URL",
+            desc: "Enter any website URL",
           },
           {
             icon: BrainCircuit,
             title: "AI analyzes",
-            desc: "AI extracts and structures the content",
+            desc: "Discovers pages, picks top 3 plus home, and analyzes aggregated content",
           },
           {
             icon: ChartNetwork,

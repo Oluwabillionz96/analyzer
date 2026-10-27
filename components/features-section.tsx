@@ -59,7 +59,7 @@ const features: {
   {
     title: "confidence note",
     description:
-      "What the AI inferred vs. what was explicitly stated on the page.",
+      "What the AI inferred vs. what was explicitly stated across the site.",
     icon: BadgeCheck,
     className: "md:col-span-6",
   },
@@ -72,7 +72,7 @@ const FeaturesSection = () => {
         {" "}
         <h2 className="text-3xl font-semibold text-accent">What you get</h2>
         <p className="text-accent-light text-sm">
-          Structured insights extracted from any landing page.
+          Structured insights extracted from any website.
         </p>
       </header>
       <div className="grid gap-4 grid-cols-1 md:grid-cols-12">

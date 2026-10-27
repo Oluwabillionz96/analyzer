@@ -38,7 +38,7 @@ const HeroSection = () => {
       <div className="space-y-6">
         <header className="space-y-6">
           <h1 className="font-semibold md:text-5xl text-4xl  text-accent text-center">
-            Analyze any landing page with AI
+            Analyze any website with AI
           </h1>
           <p className="text-center text-accent-light text-base">
             Extract company info, business model, key features, and competitors

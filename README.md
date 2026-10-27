@@ -1,6 +1,6 @@
 # Analysator
 
-Analysator is a tool that acts as a website analyst. It takes in a URL, normalizes it to its origin, discovers related pages on the site, uses an LLM to infer and select the top 3 most relevant pages, fetches and aggregates their content, and returns a structured output that includes Company name, short description, Business Model, Key features, Target Market and Likely competitors based on the full site context.
+Analysator is a tool that acts as a website analyst. It takes in a URL, normalizes it to its origin, discovers related pages on the site, uses an LLM to infer and select the top 3 most relevant pages (plus the origin/home page), fetches and aggregates their content, and returns a structured output that includes Company name, short description, Business Model, Key features, Target Market and Likely competitors based on the full site context.
 
 ## Screenshots
 
@@ -12,7 +12,7 @@ Analysator is a tool that acts as a website analyst. It takes in a URL, normaliz
 
 - Analyzes entire websites (not just landing pages) to extract structured business intelligence
 - Discovers related pages from the site and selects the top 3 most relevant pages (LLM-inferred)
-- Aggregates content from the origin and top 3 pages to build a fuller site context
+- Aggregates content from the origin/home page and the top 3 most relevant pages to build a fuller site context
 - Extracts company name, summary, business model, target market and likely competitors based on aggregated site content
 - AI confidence notes on inferred vs. explicitly stated information
 - Dynamic example URLs populated from most searched sites in the database
@@ -94,7 +94,7 @@ CREATE INDEX idx_analyses_last_updated_content_at ON analyses(last_updated_conte
 1. User submits URL via POST request to `/api/analyze` (or clicks a suggested URL from the hero section)
 2. Server normalizes the URL to its origin and discovers related pages on the site.
 3. An LLM infers and selects the top 3 most relevant pages for analysis.
-4. Server fetches content from the origin and those top 3 pages via Browserless, strips unwanted elements (e.g footer, nav, etc) and parses HTML with Cheerio; content is aggregated to build the site context.
+4. Server fetches content from the origin/home page and those top 3 pages via Browserless, strips unwanted elements (e.g footer, nav, etc) and parses HTML with Cheerio; content is aggregated to build the site context.
 5. Sends the aggregated cleaned text to Groq with a structured system prompt
 6. Parses Groq's JSON response -> returns structured analysis to client
 7. Analysis is cached in PostgreSQL and becomes available in the searchable history sidebar
