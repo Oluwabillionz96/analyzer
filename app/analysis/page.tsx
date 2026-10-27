@@ -4,6 +4,14 @@ import { fetchHistory } from "@/libs/utils";
 import AnalysisCard from "@/components/analysis-card";
 import ErrorCard from "@/components/error-card";
 import useAppContext from "@/libs/hooks/use-app-context";
+import { AnalysisStages } from "@/libs/types";
+import SkeletonLoader from "@/components/skeleton-loader";
+
+const STAGE_MESSAGES: Record<AnalysisStages, string> = {
+  fetching: "Getting site content…",
+  discovering: "Discovering related pages…",
+  analyzing: "Analyzing the content…",
+};
 
 export default function Analysis() {
   const {
@@ -13,6 +21,7 @@ export default function Analysis() {
       isLoadingFromHistory,
       url,
       isLoadingAnalysis: loading,
+      stage,
       selectedSort: { value: sortValue },
     },
     stateSetters: {
@@ -54,29 +63,19 @@ export default function Analysis() {
           <button
             type="submit"
             disabled={loading || isLoadingFromHistory}
-            className="border px-4 rounded-lg cursor-pointer py-2 md:py-0 bg-gray-500 text-white hover:bg-transparent disabled:hover:cursor-not-allowed disabled:opacity-50 hover:text-black transition-all duration-500"
+            className="border px-4 rounded-lg cursor-pointer capitalize py-2 md:py-0 bg-gray-500 text-white hover:bg-transparent disabled:hover:cursor-not-allowed disabled:opacity-50 hover:text-black transition-all duration-500"
           >
-            {loading ? "Analyzing..." : "Analyze"}
+            {loading ? (stage ? `${stage}...` : "Analyzing...") : "Analyze"}
           </button>
         </form>
-        {(loading || isLoadingFromHistory) && (
-          <div className="border rounded-lg shadow-sm p-6 space-y-4 animate-pulse">
-            <div className="h-7 bg-gray-200 rounded w-1/3" />
-            <div className="space-y-2">
-              <div className="h-4 bg-gray-200 rounded w-1/4" />
-              <div className="h-4 bg-gray-200 rounded w-full" />
-              <div className="h-4 bg-gray-200 rounded w-5/6" />
-            </div>
-            <div className="space-y-2">
-              <div className="h-4 bg-gray-200 rounded w-1/4" />
-              <div className="flex flex-wrap gap-2">
-                <div className="h-6 bg-gray-200 rounded-full w-20" />
-                <div className="h-6 bg-gray-200 rounded-full w-24" />
-                <div className="h-6 bg-gray-200 rounded-full w-16" />
-              </div>
-            </div>
+        {isLoadingFromHistory && !loading && <SkeletonLoader />}
+        {loading && stage && (
+          <div className="border rounded-lg shadow-sm p-6 flex items-center gap-3">
+            <div className="h-4 w-4 rounded-full border-2 border-gray-300 border-t-black animate-spin" />
+            <p className="font-medium">{STAGE_MESSAGES[stage]}</p>
           </div>
         )}
+        {loading && !stage && <SkeletonLoader />}
         <div className="space-y-4">
           {error && !loading && !isLoadingFromHistory && (
             <ErrorCard

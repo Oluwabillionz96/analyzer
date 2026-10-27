@@ -1,39 +1,29 @@
-import { cleanUrl, isFullUrl, isThreeDaysOld } from "@/libs/utils-server";
-import { AnalysisResponse } from "@/libs/types";
+import { getOrigin, isFullUrl, isThreeDaysOld } from "@/libs/utils-server";
+import { AnalysisResponse, AnalysisStages } from "@/libs/types";
 import { NextRequest, NextResponse } from "next/server";
-import getPageContent from "@/libs/get-page-content";
-import getSiteAnalysis from "@/libs/get-analysis";
+import { analyzePage, refreshCachedAnalysis } from "@/libs/analyze-page";
 import {
   addToDB,
   getFromDB,
-  updateCache,
   updateSearchCountAndLastUpdated,
 } from "@/libs/db-utils";
+import { checkRateLimit, rateLimitResponse } from "@/libs/rate-limits";
 
-async function analyze(url: string) {
-  try {
-    const pageContent = await getPageContent(
-      url,
-      process.env.BROWSERLESS_API_KEY,
-      process.env.BROWSERLESS_URL,
-    );
 
-    if (!pageContent) {
-      throw new Error("Website could not be analyzed");
-    }
-
-    const analysis = await getSiteAnalysis(
-      process.env.GROQ_REQUEST_URL,
-      pageContent,
-      process.env.GROQ_API_KEY,
-      url,
-    );
-
-    return analysis;
-  } catch (error) {
-    throw error;
-  }
-}
+const emit = (
+  controller: ReadableStreamDefaultController,
+  event: string,
+  data: {
+    success: boolean;
+    data?: Record<string, unknown>;
+    error?: string;
+  },
+  encoder: TextEncoder,
+) => {
+  controller.enqueue(
+    encoder.encode(`event: ${event}\ndata:${JSON.stringify(data)} \n\n`),
+  );
+};
 
 export async function POST(req: NextRequest) {
   try {
@@ -55,64 +45,125 @@ export async function POST(req: NextRequest) {
         { status: 400 },
       );
     }
+    const limited = await checkRateLimit(req)
+    if(limited) return rateLimitResponse(limited)
 
-    const cachedAnalysis = await getFromDB(cleanUrl(url));
+    const origin = getOrigin(url);
 
-    if (cachedAnalysis) {
-      const {
-        id,
-        url: cachedUrl,
-        created_at,
-        updated_at,
-        searchcount,
-        is_success,
-        error,
-        ...analysis
-      } = cachedAnalysis;
-      void searchcount;
-      void created_at;
-      void cachedUrl;
+    const encoder = new TextEncoder();
 
-      let siteAnalysis: AnalysisResponse = analysis;
-
-      if (!is_success) {
-        return NextResponse.json(
-          { success: is_success, error },
-          { status: 400 },
-        );
-      }
-
-      if (isThreeDaysOld(updated_at)) {
+    const stream = new ReadableStream({
+      async start(controller) {
         try {
-          siteAnalysis = await analyze(url);
-          await Promise.all([
-            updateCache(siteAnalysis, id),
-            updateSearchCountAndLastUpdated(id),
-          ]);
-        } catch (error) {
-          console.warn({ error });
+          const cachedAnalysis = await getFromDB(origin);
+
+          const announce = (stage: AnalysisStages) =>
+            emit(
+              controller,
+              "stage",
+              { success: true, data: { stage } },
+              encoder,
+            );
+
+          if (cachedAnalysis) {
+            const {
+              id,
+              origin: cachedUrl,
+              created_at,
+              updated_at,
+              searchcount,
+              is_success,
+              error,
+              last_updated_content_at,
+              ...analysis
+            } = cachedAnalysis;
+            void searchcount;
+            void created_at;
+            void cachedUrl;
+
+            if (!is_success) {
+              emit(
+                controller,
+                "error",
+                { success: is_success, error },
+                encoder,
+              );
+              controller.close();
+              return;
+            }
+
+            let siteAnalysis: AnalysisResponse = analysis;
+
+            if (isThreeDaysOld(last_updated_content_at)) {
+              try {
+                siteAnalysis = await refreshCachedAnalysis(id, url, announce);
+              } catch (error) {
+                console.warn({ error });
+              }
+              emit(
+                controller,
+                "analysis",
+                {
+                  success: true,
+                  data: siteAnalysis as unknown as Record<string, unknown>,
+                },
+                encoder,
+              );
+              controller.close();
+              return;
+            }
+
+            try {
+              await updateSearchCountAndLastUpdated(id);
+            } catch (error) {
+              console.warn({ error });
+            }
+            emit(
+              controller,
+              "analysis",
+              {
+                success: true,
+                data: siteAnalysis as unknown as Record<string, unknown>,
+              },
+              encoder,
+            );
+            controller.close();
+            return;
+          }
+
+          const analysis = await analyzePage(origin, announce);
+
+          try {
+            await addToDB(analysis, origin);
+          } catch (dbError) {
+            console.warn({ dbError });
+          }
+          emit(
+            controller,
+            "analysis",
+            {
+              success: true,
+              data: analysis as unknown as Record<string, unknown>,
+            },
+            encoder,
+          );
+          controller.close();
+        } catch (err) {
+          emit(
+            controller,
+            "error",
+            { success: false, error: String(err) },
+            encoder,
+          );
+          controller.close();
         }
-        return NextResponse.json({ success: true, data: siteAnalysis });
-      }
+      },
+    });
 
-      try {
-        await updateSearchCountAndLastUpdated(id);
-      } catch (error) {
-        console.warn({ error });
-      }
-      return NextResponse.json({ success: true, data: siteAnalysis });
-    }
-
-    const analysis = await analyze(url);
-
-    try {
-      await addToDB(analysis, url);
-    } catch (dbError) {
-      console.warn({ dbError });
-    }
-    return NextResponse.json({
-      success: true,
-      data: analysis,
+    return new Response(stream, {
+      headers: {
+        "content-type": "text/plain;charset=UTF-8",
+      },
     });
   } catch (error) {
     console.error({ error });
@@ -125,3 +176,5 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export const maxDuration = 300;

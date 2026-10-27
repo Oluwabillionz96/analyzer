@@ -17,12 +17,37 @@ export interface AnalysisResponse {
 
 export interface CachedAnalysis extends AnalysisResponse {
   id: string;
-  url: string;
+  origin: string;
   searchcount: number;
   created_at: string;
   updated_at: string;
+  last_updated_content_at: string,
   is_success: boolean;
   error?: string;
 }
 
-export type SORTVALUES = "most-recent" | "oldest" | "most-searched" | "least-searched";
+export interface PageLink {
+  href: string;
+  origin: string;
+  anchor: string;
+}
+
+export interface SitePageContent {
+  text: string;
+  links: PageLink[];
+}
+
+export interface PageContentInput {
+  url: string;
+  text: string;
+}
+
+export type SORTVALUES =
+  | "most-recent"
+  | "oldest"
+  | "most-searched"
+  | "least-searched";
+
+export type PageContent = { url: string; text: string };
+
+export type AnalysisStages = "fetching" | "discovering" | "analyzing";

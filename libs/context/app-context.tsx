@@ -9,7 +9,12 @@ import {
   useLayoutEffect,
   useState,
 } from "react";
-import { AnalysisResponse, CachedAnalysis, SORTVALUES } from "../types";
+import {
+  AnalysisResponse,
+  AnalysisStages,
+  CachedAnalysis,
+  SORTVALUES,
+} from "../types";
 import { analyzeUrl, SORT_OPTIONS } from "../utils";
 import useIsMobile from "../hooks/use-is-mobile";
 
@@ -24,6 +29,7 @@ const Context = createContext<{
     totalHistory: number;
     url: string;
     isLoadingAnalysis: boolean;
+    stage: AnalysisStages | null;
     selectedSort: { label: string; value: SORTVALUES };
   };
   stateSetters: {
@@ -58,6 +64,7 @@ const AppContext = ({ children }: { children: ReactNode }) => {
     label: string;
     value: SORTVALUES;
   }>(SORT_OPTIONS[0]);
+  const [stage, setStage] = useState<AnalysisStages | null>(null);
 
   useLayoutEffect(() => {
     let isMounted = true;
@@ -80,8 +87,9 @@ const AppContext = ({ children }: { children: ReactNode }) => {
     setIsLoadingAnalysis(true);
     setError(null);
     setAnalysis(null);
+    setStage(null);
     try {
-      const res = await analyzeUrl(url);
+      const res = await analyzeUrl(url, setStage);
       setAnalysis(res?.data ?? null);
       setUrl("");
     } catch (error) {
@@ -105,6 +113,7 @@ const AppContext = ({ children }: { children: ReactNode }) => {
           url,
           isLoadingAnalysis,
           selectedSort,
+          stage,
         },
         stateSetters: {
           setIsSidebarOpen,

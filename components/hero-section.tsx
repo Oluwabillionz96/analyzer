@@ -18,7 +18,7 @@ const HeroSection = () => {
   useEffect(() => {
     loadHistory(1, "most-searched", 5)
       .then((history) => {
-        const urls = history?.data?.map((item) => item.url);
+        const urls = history?.data?.map((item) => item.origin);
         setTopUrls(urls || []);
       })
       .catch((error) =>

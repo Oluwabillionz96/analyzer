@@ -79,6 +79,7 @@ export default function HistorySection({ isOpen }: { isOpen: boolean }) {
     if (!historyBarRef.current) return;
 
     let isLoading = false;
+    let timeOut: ReturnType<typeof setTimeout> | undefined;
 
     function handleScroll() {
       if (isLoading) return;
@@ -93,18 +94,20 @@ export default function HistorySection({ isOpen }: { isOpen: boolean }) {
       ) {
         isLoading = true;
         setIsLoadingHistory(true);
-        loadHistory(page + 1, selectedSort.value)
-          .then((data) => {
-            setHistory((prev) => [...prev, ...(data.data ?? [])]);
-            setPage(data?.page ?? page);
-          })
-          .catch((error) => {
-            console.warn("Failed to load more history:", error);
-          })
-          .finally(() => {
-            isLoading = false;
-            setIsLoadingHistory(false);
-          });
+        timeOut = setTimeout(() => {
+          loadHistory(page + 1, selectedSort.value)
+            .then((data) => {
+              setHistory((prev) => [...prev, ...(data.data ?? [])]);
+              setPage(data?.page ?? page);
+            })
+            .catch((error) => {
+              console.warn("Failed to load more history:", error);
+            })
+            .finally(() => {
+              isLoading = false;
+              setIsLoadingHistory(false);
+            });
+        }, 1500);
       }
     }
 
@@ -117,6 +120,7 @@ export default function HistorySection({ isOpen }: { isOpen: boolean }) {
     return () => {
       if (sidebar) {
         sidebar.removeEventListener("scroll", handleScroll);
+        clearTimeout(timeOut);
       }
     };
   }, [
